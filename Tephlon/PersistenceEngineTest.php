@@ -36,7 +36,7 @@ class PersistenceEngineTest extends UnitTestCase {
 
 	function testLifetimeOfRecords(){
 		$this->clear();
-		$key = $this->pe->register($this->testString, $this->testLabel,1);
+		$key = $this->pe->register($this->testString, $this->testLabel, 1);
 		$this->assertNotNull($key, "Result of register was null (key expected)");
 		sleep(2);
 		echo "STALE: Trying to lately fetch ".$this->testLabel."\n";

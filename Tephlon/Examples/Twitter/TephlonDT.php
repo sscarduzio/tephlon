@@ -10,13 +10,13 @@ class TephlonDT {
 	protected $tephlon_label;
 	protected $lifetime = 0;
 
-	protected function tephlonInit($label){
+	protected function tephlonInit($label, $default = null){
 		if(!$label){
 			die("TephlonDT: need a label to init!");
 		}
 		$pe = PHPSerializationPersistenceEngine::getInstance();
 		$this->tephlon_label = $label;
-		return $pe->retrieve($label);
+		return $pe->retrieve($label, $default);
 	}
 
 	protected function tephlonSave($object){

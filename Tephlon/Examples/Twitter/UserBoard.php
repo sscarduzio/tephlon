@@ -6,10 +6,14 @@ class UserBoard extends TephlonDT{
 	private $users = array();
 
 	public function __construct(){
+		/*
 		$this->users = $this->tephlonInit("UserBoard");
 		if(!$this->users){
 			$this->users = array();
 		}
+		*/
+		// More simply, with the "default" optional parameter:
+		$this->users = $this->tephlonInit("UserBoard", array());
 	}
 	
 	public function addUser($user){
