@@ -130,7 +130,13 @@ class PersistenceEngine implements PersistenceEngineInterface{
 		}
 	}
 
-
+	/**
+	 * Save the record to persistence
+	 * 
+	 * @param unknown_type $object
+	 * @param String $label
+	 * @param int $expire_in_seconds
+	 */
 	public function register($object, $label, $expire_in_seconds = DEFAULT_STALE_AGE){
 		
 		$key = $this->calculateKey(debug_backtrace(false), $label);
@@ -141,9 +147,11 @@ class PersistenceEngine implements PersistenceEngineInterface{
 		}
 		return $key;
 	}
+	
 	/**
+	 * Delete record by label or Record object
 	 * 
-	 * @param unknown_type $label is a label string  or Record object
+	 * @param Record|String $label the label or Record.
 	 */
 	public function delete($label){
 		if($label instanceof Record){
@@ -151,7 +159,7 @@ class PersistenceEngine implements PersistenceEngineInterface{
 			$key = $record->getKey(); 
 			return $this->doDelete($key);
 		}
-		if(!is_string($key)){
+		if(!is_string($label)){
 			$this->log("non-string given as a key for delete!");
 			return false;
 		}

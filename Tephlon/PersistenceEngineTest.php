@@ -6,7 +6,7 @@
 require_once('simpletest/autorun.php');
 require_once('PHPSerializationPersistenceEngine.php');
 
-class PersistenceEngineTest extends UnitTestCase {
+class PersistenceEngineBasicTest extends UnitTestCase {
 	private $pe = null;
 	private $testString = "0123456789";
 	private $testLabel = "test_label";
@@ -16,6 +16,8 @@ class PersistenceEngineTest extends UnitTestCase {
 	}
 	function testInitialization(){
 		$this->pe = PHPSerializationPersistenceEngine::getInstance();
+		// Get rid of test records pretty soon, please
+		$this->pe->setStaleAge(10);
 		$this->assertIsA($this->pe,"PersistenceEngine");
 		$this->assertIsA($this->pe,"PHPSerializationPersistenceEngine");
 	}
@@ -57,5 +59,35 @@ class PersistenceEngineKeyCollisionTest extends UnitTestCase{
 		echo "Trying to fetch (different context) ".$this->testLabel."\n";
 		$result = $this->pe->retrieve($this->testLabel);
 		$this->assertNull($result,"Not null was retrieved for previously registered label");
+	}
+}
+class PersistenceEngineCRUDTest extends UnitTestCase{
+	private $pe = null;
+	private $testString = "A0123456789";
+	private $newTestString = "ABCDEFGHILM";
+	private $testLabel = "test_label";
+	
+	function testCreate(){
+		$this->pe = PHPSerializationPersistenceEngine::getInstance();
+		$result = $this->pe->retrieve($this->testLabel.time());
+		$this->assertNull($result,"Freshly created record is not null");
+		// Test the retrieve default value
+		$result = $this->pe->retrieve($this->testLabel,$this->testString);
+		$this->assertEqual($this->testString,$result, "Default parameter of retrieve() does not work");
+	} 	
+	function testRead(){
+		// Already tested
+	}
+	function testUpdate(){ 
+		// Setting the "testLabel" record to testString+newTestString (A0123..ABCDE..)
+		$obj = $this->pe->retrieve($this->testLabel).$this->newTestString;
+		
+		$result = $this->pe->register($obj , $this->testLabel);
+		// Now result contains the label
+		$this->assertEqual($this->pe->retrieve($result), 
+			$this->testString.$this->newTestString, "Update failed");
+	}
+	function testDelete(){
+		$this->pe->delete($this->testLabel);
 	}
 }
