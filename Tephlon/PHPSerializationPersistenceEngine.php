@@ -12,13 +12,24 @@ require_once ("PersistenceEngine.php");
 
 class PHPSerializationPersistenceEngine extends PersistenceEngine {
 
-	private $cache_path = "cache/PSPE/";
+	private $cache_path = "cache/";
 	private $cache_suffix = "txt";
 
-	protected function __construct(){
-		// Populate internal record map
-		if(!file_exists($this->cache_path)){
-			mkdir($this->cache_path, 0777, true);
+	public function __construct($context){
+		$this->setContext($context);
+		
+	}
+
+	/**
+	 * Whenever we change context or create this engine, we need to 
+	 * assure the directory exists and contains no stale records
+	 * 
+	 * @param $ctx
+	 */
+	protected function doSetContext($ctx){
+		//$this->setContext($context);
+		if(!file_exists($this->getCachePath())){
+			mkdir($this->getCachePath(), 0777, true);
 		}
 		$fileList = glob($this->key2filepath("*"));
 		foreach ($fileList as $file_path){
@@ -33,7 +44,10 @@ class PHPSerializationPersistenceEngine extends PersistenceEngine {
 			}
 		}
 	}
-
+	
+	private function getCachePath(){
+		return $this->cache_path.$this->getContext()."/";
+	}
 	/**
 	 * Implementation specific low level write operation
 	 *
@@ -71,7 +85,7 @@ class PHPSerializationPersistenceEngine extends PersistenceEngine {
 		}
 		return false;
 	}
-	
+
 	protected function doDelete($key){
 		$fn = $this->key2filepath($key);
 		if(file_exists($fn)){
@@ -82,6 +96,6 @@ class PHPSerializationPersistenceEngine extends PersistenceEngine {
 	}
 
 	private function key2filepath($key){
-		return $this->cache_path.$key.".".$this->cache_suffix;
+		return $this->getCachePath().$key.".".$this->cache_suffix;
 	}
 }

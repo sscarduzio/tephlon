@@ -4,7 +4,7 @@
  */
 
 require_once('simpletest/autorun.php');
-require_once('PHPSerializationPersistenceEngine.php');
+require_once('Tephlon.php');
 
 class PersistenceEngineBasicTest extends UnitTestCase {
 	private $pe = null;
@@ -15,14 +15,14 @@ class PersistenceEngineBasicTest extends UnitTestCase {
 		include("clear_cache.php");
 	}
 	function testInitialization(){
-		$this->pe = PHPSerializationPersistenceEngine::getInstance();
+		$this->pe = Tephlon::getResource();
 		// Get rid of test records pretty soon, please
 		$this->pe->setStaleAge(10);
 		$this->assertIsA($this->pe,"PersistenceEngine");
 		$this->assertIsA($this->pe,"PHPSerializationPersistenceEngine");
 	}
 	function testRegisterRetrieveInSameContext(){
-		$this->clear();
+		//$this->clear();
 		// Cache miss
 		$result = $this->pe->register($this->testString, $this->testLabel);
 		$this->assertNotNull($result, "Result of register was null");
@@ -37,7 +37,7 @@ class PersistenceEngineBasicTest extends UnitTestCase {
 	}
 
 	function testLifetimeOfRecords(){
-		$this->clear();
+		//$this->clear();
 		$key = $this->pe->register($this->testString, $this->testLabel, 1);
 		$this->assertNotNull($key, "Result of register was null (key expected)");
 		sleep(2);
@@ -54,7 +54,7 @@ class PersistenceEngineKeyCollisionTest extends UnitTestCase{
 	private $testLabel = "test_label";
 	
 	function testRetrieveInDifferentContext(){
-		$this->pe = PHPSerializationPersistenceEngine::getInstance();
+		$this->pe = Tephlon::getResource();
 		// The retrieve now is called from a different trace context
 		echo "Trying to fetch (different context) ".$this->testLabel."\n";
 		$result = $this->pe->retrieve($this->testLabel);
@@ -68,7 +68,7 @@ class PersistenceEngineCRUDTest extends UnitTestCase{
 	private $testLabel = "test_label";
 	
 	function testCreate(){
-		$this->pe = PHPSerializationPersistenceEngine::getInstance();
+		$this->pe = Tephlon::getResource();
 		$result = $this->pe->retrieve($this->testLabel.time());
 		$this->assertNull($result,"Freshly created record is not null");
 		// Test the retrieve default value
@@ -79,13 +79,14 @@ class PersistenceEngineCRUDTest extends UnitTestCase{
 		// Already tested
 	}
 	function testUpdate(){ 
-		// Setting the "testLabel" record to testString+newTestString (A0123..ABCDE..)
-		$obj = $this->pe->retrieve($this->testLabel).$this->newTestString;
+		$obj = $this->pe->retrieve($this->testLabel);
+		$this->assertNotNull($obj, "Could not retrieve record set in another method");
+		$obj = $this->newTestString;
 		
-		$result = $this->pe->register($obj , $this->testLabel);
+		$this->pe->register($obj , $this->testLabel);
 		// Now result contains the label
-		$this->assertEqual($this->pe->retrieve($result), 
-			$this->testString.$this->newTestString, "Update failed");
+		$updated = $this->pe->retrieve($this->testLabel);
+		$this->assertEqual($updated, $obj, "Update failed");
 	}
 	function testDelete(){
 		$this->pe->delete($this->testLabel);

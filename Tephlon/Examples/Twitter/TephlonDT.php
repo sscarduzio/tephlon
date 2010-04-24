@@ -5,25 +5,26 @@
  * @author Simone
  *
  */
-require_once("../../PHPSerializationPersistenceEngine.php");
+require_once("../../Tephlon.php");
 class TephlonDT {
 	protected $tephlon_label;
 	protected $lifetime = 0;
+	protected $tr;
 
 	protected function tephlonInit($label, $default = null){
 		if(!$label){
 			die("TephlonDT: need a label to init!");
 		}
-		$pe = PHPSerializationPersistenceEngine::getInstance();
+		$this->tr = Tephlon::getResource();
 		$this->tephlon_label = $label;
-		return $pe->retrieve($label, $default);
+		$obj = $this->tr->retrieve($label, $default);
+		return $obj;
 	}
 
 	protected function tephlonSave($object){
-		$pe = PHPSerializationPersistenceEngine::getInstance();
 		if(!$this->tephlon_label){
 			die("TephlonDT data type uninitialized");
 		}
-		return $pe->register($object,$this->tephlon_label, $this->lifetime);
+		return $this->tr->register($object,$this->tephlon_label, $this->lifetime);
 	}
 }

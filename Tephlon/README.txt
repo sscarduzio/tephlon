@@ -19,14 +19,14 @@ Typically this is the directory layout you want to keep in your Tephlon project:
 == Direct Access Usage ==
 Make sure you include somewhere this file appropriately.
 
-require_once("/Tephlon/PHPSerializationPersistenceEngine.php");
+require_once("/Tephlon/Tephlon.php");
 
 * Get the instance of the persistence engine singleton:
-$pe = PHPSerializationPersistenceEngine::getInstance();
+$t = Tephlon::getResource();
 
 * Decide a label for your precious object and invoke it with retrieve
 
-$my_precious = $pe->retrieve("my_precious_label");
+$my_precious = $t->retrieve("my_precious_label");
 
 If there was a cache record for "my_precious_label", now the variable $my_precious will
 have its content inside. If no such record was found, it's being created with value of null,
@@ -40,11 +40,11 @@ planning to use object oriented PHP (procedural).
 
 You can also specify a fallback defaul value if the record is not found (optional)
 
-$my_precious = $pe->retrieve("my_precious_label", array());
+$my_precious = $t->retrieve("my_precious_label", array());
 
 Doing this is the same of doing:
 
-$my_precious = $pe->retrieve("my_precious_label");
+$my_precious = $t->retrieve("my_precious_label");
 if($myprecious != null){
 	$my_precious = array();
 }
@@ -54,14 +54,14 @@ any class object. Once you want to save it to Tephlon persistence layer, simply 
 $my_precious = calculateImportantData($x, $y);
 ...
 // Saving to persistence!
-$pe->register($my_precious, "my_precious_label"); 
+$t->register($my_precious, "my_precious_label"); 
 
 and its value will be saved, so that next script execution (read: page visit) will have that
 content.
 
 You can also specify a lifetime (in seconds) for this record. For example:
 // The content will be available for the next 24h
-$pe->register($my_precious, "my_precious_label", 24*60*60);
+$t->register($my_precious, "my_precious_label", 24*60*60);
 
 == Superclass Approach ==
 A more practical way to leverage persistence is to extend TephlonDT class
