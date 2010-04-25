@@ -15,7 +15,7 @@ class PersistenceEngineBasicTest extends UnitTestCase {
 		include("clear_cache.php");
 	}
 	function testInitialization(){
-		$this->pe = Tephlon::getResource();
+		$this->pe = Tephlon::getResource($this);
 		// Get rid of test records pretty soon, please
 		$this->pe->setStaleAge(10);
 		$this->assertIsA($this->pe,"PersistenceEngine");

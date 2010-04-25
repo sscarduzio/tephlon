@@ -65,7 +65,11 @@ class PHPSerializationPersistenceEngine extends PersistenceEngine {
 		// Dump to file
 		try{
 			$file_path = $this->key2filepath($key);
-			$fp = fopen($file_path,"w");
+			// Added support for multi-dir scalable file storage
+			if(!file_exists(dirname($file_path))){
+				mkdir(dirname($file_path), 0777, true);
+			}
+			$fp = fopen($file_path, "w");
 			fwrite($fp,serialize($record));
 			fclose($fp);
 		}catch (Exception $e){
@@ -101,6 +105,8 @@ class PHPSerializationPersistenceEngine extends PersistenceEngine {
 	}
 
 	private function key2filepath($key){
-		return $this->getCachePath().$key.".".$this->cache_suffix;
+		$len = strlen($key);
+		$subdir = substr($key, $len-1, $len);
+		return $this->getCachePath().$subdir."/".$key.".".$this->cache_suffix;
 	}
 }

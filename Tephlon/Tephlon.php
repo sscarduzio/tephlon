@@ -6,8 +6,8 @@ define("DEBUG_MODE", false);
 
 
 class Tephlon {
-	public static function getResource($driverName="File"){
-		$ctx = self::extractContext(debug_backtrace(false));
+	public static function getResource($that = null, $driverName="File"){
+		$ctx = self::extractContext($that);
 		// List of available drivers
 		if($driverName == "File"){
 			return new
@@ -18,8 +18,12 @@ class Tephlon {
 			die();
 		}
 	}
-	private static function extractContext($debug_backtrace){
+	private static function extractContext($that){
 		//print_r($debug_backtrace);
+		if(!is_null($that)){
+			return get_class($that);
+		}
+		return "";
 		$caller=$debug_backtrace[count($debug_backtrace)-1];
 		if (isset($caller['class'])){
 			return ($caller['class']);

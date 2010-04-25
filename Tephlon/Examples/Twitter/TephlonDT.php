@@ -11,11 +11,11 @@ class TephlonDT {
 	protected $lifetime = 0;
 	protected $tr;
 
-	protected function tephlonInit($label, $default = null){
+	protected function tephlonInit($that, $label, $default = null){
 		if(!$label){
 			die("TephlonDT: need a label to init!");
 		}
-		$this->tr = Tephlon::getResource();
+		$this->tr = Tephlon::getResource($that);
 		$this->tephlon_label = $label;
 		$obj = $this->tr->retrieve($label, $default);
 		return $obj;

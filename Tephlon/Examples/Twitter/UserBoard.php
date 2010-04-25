@@ -13,7 +13,7 @@ class UserBoard extends TephlonDT{
 		}
 		*/
 		// More simply, with the "default" optional parameter:
-		$this->users = $this->tephlonInit("UserBoard", array());
+		$this->users = $this->tephlonInit($this, "UserBoard", array());
 	}
 	
 	public function addUser($user){

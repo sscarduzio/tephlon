@@ -15,7 +15,7 @@ class Flow extends TephlonDT{
 	protected $statuses;
 
 	public function __construct($owner_id){
-		$this->statuses = $this->tephlonInit($owner_id);
+		$this->statuses = $this->tephlonInit($this, $owner_id);
 		$this->owner_id = $owner_id;
 		if(!$this->statuses){
 			$this->statuses = array();

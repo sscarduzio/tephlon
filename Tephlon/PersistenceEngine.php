@@ -87,10 +87,11 @@ class PersistenceEngine {
 			if(!$label || !is_string($label) || strlen($label) < 1){
 				throw new Exception("You need to provide a label to register an object");
 			}
-			$key  = $this->context;
-			$key .= ".";
-			$key .= $label;
-			return ($key);
+			if($this->context){
+				$key  = $this->context.".";
+			}
+			$key = $key.$label;
+			return ($key."-".md5($key));
 		}
 		catch(Exception $e){
 			die($e);

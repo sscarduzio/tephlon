@@ -67,11 +67,17 @@ $t->register($my_precious, "my_precious_label", 24*60*60);
 A more practical way to leverage persistence is to extend TephlonDT class
 For simple example of how to use it take in consideration the class Flow or UserBoard
 that you find in basic "Twitter" example.
-Basically extending TephlonDT gives you access to two protected methods:
+Basically extending TephlonDT gives you access to two methods:
 
-$this->tephlonInit($my_data, "my_label", <$default>); 
+// You need to pass $this object to tephlonInit so that Tephlon can reserve
+// a per-classname  dedicated namespace in which labels won't collide
+$this->tephlonInit($this, $my_data, "my_label", <$default>); 
+
 $this->tephlonSave($my_data); 
 
+The first method you must invoke into the constructor of your personal TephlonDT subclass, 
+so that we attribute a label to this instance. 
+The second is to save to persistence your data after modifying it.
 Enjoy!
 
 
