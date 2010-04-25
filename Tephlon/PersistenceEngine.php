@@ -26,6 +26,9 @@ class PersistenceEngine {
 	protected function getContext(){
 		return $this->context;
 	}
+	public function clean(){
+		$this->doSetContext($this->getContext());
+	}
 	/**
 	 * Set the maximum age for a record to be considered stale
 	 *
@@ -123,7 +126,7 @@ class PersistenceEngine {
 			return $this->doDelete($key);
 		}
 		if(!is_string($label)){
-			$this->log("non-string given as a key for delete!");
+			dlog("non-string given as a key for delete!");
 			return false;
 		}
 		$key = $this->calculateKey($label);

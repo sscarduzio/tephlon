@@ -4,7 +4,7 @@
  */
 
 require_once('simpletest/autorun.php');
-require_once('Tephlon.php');
+require_once('../Tephlon.php');
 
 class PersistenceEngineBasicTest extends UnitTestCase {
 	private $pe = null;

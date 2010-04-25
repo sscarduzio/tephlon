@@ -2,7 +2,7 @@
 require_once("PHPSerializationPersistenceEngine.php");
 
 define("DEFAULT_STALE_AGE", 0);
-define("DEBUG_MODE", true);
+define("DEBUG_MODE", false);
 
 
 class Tephlon {
@@ -24,7 +24,7 @@ class Tephlon {
 		if (isset($caller['class'])){
 			return ($caller['class']);
 		}
-		dlog("context is global");
+		dlog("context is global",true);
 		return ("");
 	}
 }

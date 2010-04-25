@@ -17,17 +17,19 @@ class PHPSerializationPersistenceEngine extends PersistenceEngine {
 
 	public function __construct($context){
 		$this->setContext($context);
-		
 	}
 
 	/**
-	 * Whenever we change context or create this engine, we need to 
+	 * Whenever we change context or create this engine, we need to
 	 * assure the directory exists and contains no stale records
-	 * 
+	 *
 	 * @param $ctx
 	 */
 	protected function doSetContext($ctx){
-		//$this->setContext($context);
+
+		if(!file_exists($this->cache_path)){
+			mkdir($this->cache_path, 0777, true);
+		}
 		if(!file_exists($this->getCachePath())){
 			mkdir($this->getCachePath(), 0777, true);
 		}
@@ -44,9 +46,12 @@ class PHPSerializationPersistenceEngine extends PersistenceEngine {
 			}
 		}
 	}
-	
+
 	private function getCachePath(){
-		return $this->cache_path.$this->getContext()."/";
+		if(!is_null($this->context)){
+			return $this->cache_path.$this->getContext()."/";
+		}
+		return $this->cache_path;
 	}
 	/**
 	 * Implementation specific low level write operation
@@ -64,7 +69,7 @@ class PHPSerializationPersistenceEngine extends PersistenceEngine {
 			fwrite($fp,serialize($record));
 			fclose($fp);
 		}catch (Exception $e){
-			$this->log("Unable to write record to file: ".$key);
+			$dlog("Unable to write record to file: ".$key);
 			return false;
 		}
 		return true;
