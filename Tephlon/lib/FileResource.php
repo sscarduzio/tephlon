@@ -12,7 +12,7 @@ require_once ("PersistenceEngine.php");
 
 class FileResource extends PersistenceEngine {
 
-	private $cache_path = "cache/";
+	private $cache_path = FILE_CACHE_DIR;
 	private $cache_suffix = "ser";
 
 	public function __construct($context){

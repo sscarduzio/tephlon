@@ -1,9 +1,20 @@
 <?php
+
+/* ************** Tephlon library configuration ***************************** */
+
+	// The default lifetime of a record, 0 = forever
+	define("DEFAULT_STALE_AGE", 0);
+	
+	// Resources are directories, Records are files containing your objects/vars
+	// In which dir to store them? You may want to put absolute path for clarity.
+	define("FILE_CACHE_DIR", "cache/");
+	
+	// View debug messages
+	define("DEBUG_MODE", true);
+
+/* ************************************************************************** */
+
 require_once("lib/FileResource.php");
-
-define("DEFAULT_STALE_AGE", 0);
-define("DEBUG_MODE", true);
-
 
 class Tephlon {
 	public static function getResource($that = null, $driverName="File"){
@@ -19,17 +30,10 @@ class Tephlon {
 		}
 	}
 	private static function extractContext($that){
-		//print_r($debug_backtrace);
 		if(!is_null($that)){
 			return get_class($that);
 		}
 		return "";
-		//		$caller=$debug_backtrace[count($debug_backtrace)-1];
-		//		if (isset($caller['class'])){
-		//			return ($caller['class']);
-		//		}
-		//		dlog("context is global",true);
-		//		return ("");
 	}
 }
 
