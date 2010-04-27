@@ -35,18 +35,19 @@ class PerformanceTest extends UnitTestCase {
 		$this->t->clean();
 		$time_end = microtime(1);
 		$time_elapsed = $time_end - $time_start;
-		echo printf(":\t\tDELETE:\t%d Records\t(strlen: %d)\tin in %f seconds\t[%f RPS]\n",
-		 $this->records, strlen($this->testString), $time_elapsed, $this->records/$time_elapsed);
+		// echo printf(":\t\tDELETE:\t%d Records\t(strlen: %d)\tin in %f seconds\t[%f RPS]\n",
+		// $this->records, strlen($this->testString), $time_elapsed, $this->records/$time_elapsed);
 	}
 	function test_1Kstrl_1M_records(){
-		$this->strSize = 10*100;
-		$this->records = 10000;
+		$this->strSize = 10;
+		$this->records = 100;
 		$this->writeManyStringRecords();
 		$this->cleanManyStringRecords();
 	}
+	// Skipped with "a" in front of method name..
 	function atest_1Mstrl_1K_records(){
 		$this->strSize = 100;
-		$this->records = 10*100;
+		$this->records = 1000;
 		$this->writeManyStringRecords();
 		$this->cleanManyStringRecords();
 

@@ -24,8 +24,10 @@ date_default_timezone_set("EET");
 foreach ($users as $u){
 	$uflow = new Flow($u->getID());
 	$ustatuses= $uflow->getAll();
-	echo "Status flow of: ".$u->getID()." (".$u->getName().")\n";
-	foreach($ustatuses as $time => $status){
-		echo "\t".date("d/m/y @ H:i:s",$time).": $status\n";
-	}
+	if(count($ustatuses) > 0){
+		echo "Status flow of: ".$u->getID()." (".$u->getName().")\n";
+		foreach($ustatuses as $time => $status){
+			echo "\t".date("d/m/y @ H:i:s",$time).": $status\n";
+		}
+	}else echo "stale user!";
 }

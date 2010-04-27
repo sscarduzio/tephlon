@@ -1,6 +1,6 @@
 <?php
 /**
- * PHPSerializationPersistenceEngine class
+ * FileResource class
  *
  * Store the data structures to file using the internal PHP
  * Serialization/Unserialization mechanism.
@@ -10,10 +10,10 @@
 
 require_once ("PersistenceEngine.php");
 
-class PHPSerializationPersistenceEngine extends PersistenceEngine {
+class FileResource extends PersistenceEngine {
 
 	private $cache_path = "cache/";
-	private $cache_suffix = "txt";
+	private $cache_suffix = "ser";
 
 	public function __construct($context){
 		$this->setContext($context);
@@ -33,15 +33,27 @@ class PHPSerializationPersistenceEngine extends PersistenceEngine {
 		if(!file_exists($this->getCachePath())){
 			mkdir($this->getCachePath(), 0777, true);
 		}
-		$fileList = glob($this->key2filepath("*"));
+
+		$file = glob($this->getCachePath()."*");
+		foreach($file as $dir){
+			if(is_dir($dir)){
+				$this->cleanStaleFiles($dir);
+			}
+		}
+
+	}
+	private function cleanStaleFiles($path){
+		$fileList = glob($path."/*");
 		foreach ($fileList as $file_path){
 			//xyz.txt
 			$file_name = basename ($file_path);
-			//xyz
-			$file_key = basename($file_path,$this->cache_suffix);
 			// Delete stale records
 			$the_record = unserialize(file_get_contents($file_path));
+			if(!$the_record){
+				dlog("ERROR: cleanStaleFiles($path): unable to read $file_path");
+			}
 			if($the_record->isStale()){
+				dlog("Self Maintainance: Removing stale $file_path", true);
 				unlink($file_path);
 			}
 		}

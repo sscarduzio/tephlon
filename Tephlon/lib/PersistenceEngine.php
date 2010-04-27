@@ -53,7 +53,7 @@ class PersistenceEngine {
 	 *
 	 * For technology specific operations (file handling, sql, ..)
 	 * please see specific implementations' "protected doRetrieve()"
-	 * method of the relative subclass (eg. PHPSerializationPersistence.php).
+	 * method of the relative subclass (eg. FileResource.php).
 	 *
 	 * @param String $label is the searched object's label.
 	 * @param Object $default return this value if engine doesn't have a record for "$label"

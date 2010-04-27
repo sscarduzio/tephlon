@@ -1,8 +1,8 @@
 <?php
-require_once("PHPSerializationPersistenceEngine.php");
+require_once("lib/FileResource.php");
 
 define("DEFAULT_STALE_AGE", 0);
-define("DEBUG_MODE", false);
+define("DEBUG_MODE", true);
 
 
 class Tephlon {
@@ -11,7 +11,7 @@ class Tephlon {
 		// List of available drivers
 		if($driverName == "File"){
 			return new
-			PHPSerializationPersistenceEngine($ctx);
+			FileResource($ctx);
 		}
 		else{
 			dlog("Driver $driverName not found");
@@ -24,12 +24,12 @@ class Tephlon {
 			return get_class($that);
 		}
 		return "";
-		$caller=$debug_backtrace[count($debug_backtrace)-1];
-		if (isset($caller['class'])){
-			return ($caller['class']);
-		}
-		dlog("context is global",true);
-		return ("");
+		//		$caller=$debug_backtrace[count($debug_backtrace)-1];
+		//		if (isset($caller['class'])){
+		//			return ($caller['class']);
+		//		}
+		//		dlog("context is global",true);
+		//		return ("");
 	}
 }
 
