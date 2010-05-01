@@ -50,10 +50,10 @@ class FileResource extends PersistenceEngine {
 			// Delete stale records
 			$the_record = unserialize(file_get_contents($file_path));
 			if(!$the_record){
-				dlog("ERROR: cleanStaleFiles($path): unable to read $file_path");
+				dlog("ERROR: cleanStaleFiles($path): unable to read $file_path",DEBUG);
 			}
 			if($the_record->isStale()){
-				dlog("Self Maintainance: Removing stale $file_path", true);
+				dlog("Self Maintainance: Removing stale $file_path", DEBUG);
 				unlink($file_path);
 			}
 		}
@@ -85,7 +85,7 @@ class FileResource extends PersistenceEngine {
 			fwrite($fp,serialize($record));
 			fclose($fp);
 		}catch (Exception $e){
-			$dlog("Unable to write record to file: ".$key);
+			dlog("Unable to write record to file: ".$key, ERROR);
 			return false;
 		}
 		return true;

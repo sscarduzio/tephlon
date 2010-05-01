@@ -19,7 +19,7 @@ class PersistenceEngineBasicTest extends UnitTestCase {
 		// Get rid of test records pretty soon, please
 		$this->pe->setStaleAge(10);
 		$this->assertIsA($this->pe,"PersistenceEngine");
-		$this->assertIsA($this->pe,"PHPSerializationPersistenceEngine");
+		$this->assertIsA($this->pe,"FileResource");
 	}
 	function testRegisterRetrieveInSameContext(){
 		//$this->clear();

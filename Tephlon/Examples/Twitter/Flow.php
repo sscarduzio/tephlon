@@ -25,7 +25,7 @@ class Flow extends TephlonDT{
 		if(!is_string($status) || strlen($status) < 1){
 			die("invalid status, must be string and not empty.");
 		}
-		$this->statuses[time()] = $status;
+		$this->statuses[time().uniqid("_")] = $status;
 		$this->tephlonSave($this->statuses);
 	}
 	public function getAll(){

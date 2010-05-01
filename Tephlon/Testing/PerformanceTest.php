@@ -18,7 +18,7 @@ class PerformanceTest extends UnitTestCase {
 		for($i = 0; $i < $this->strSize ; $i++){
 			$this->testString = $this->testString."x";
 		}
-		dlog("String written",true);
+		dlog("String written",DEBUG);
 		$time_start = microtime(1);
 		for($i = 0; $i < $this->records ; $i++){
 			$res = $this->t->register($this->testString, $this->testLabel.$i, 1);
@@ -26,7 +26,7 @@ class PerformanceTest extends UnitTestCase {
 		$time_end = microtime(1);
 
 		$time_elapsed = $time_end - $time_start;
-		echo printf(":\t\tWRITE:\t%d Records\t(strlen: %d)\tin in %f seconds\t[%f RPS]\n",
+		printf("WRITE: %d\t\t Records\t(strlen: %d)\tin in %f seconds\t[%f RPS]\n",
 		 $this->records, strlen($this->testString), $time_elapsed, $this->records/$time_elapsed);
 	}
 
@@ -35,7 +35,7 @@ class PerformanceTest extends UnitTestCase {
 		$this->t->clean();
 		$time_end = microtime(1);
 		$time_elapsed = $time_end - $time_start;
-		// echo printf(":\t\tDELETE:\t%d Records\t(strlen: %d)\tin in %f seconds\t[%f RPS]\n",
+		// echo printf("\nDELETE:\t%d Records\t(strlen: %d)\tin in %f seconds\t[%f RPS]\n",
 		// $this->records, strlen($this->testString), $time_elapsed, $this->records/$time_elapsed);
 	}
 	function test_1Kstrl_1M_records(){
@@ -44,8 +44,7 @@ class PerformanceTest extends UnitTestCase {
 		$this->writeManyStringRecords();
 		$this->cleanManyStringRecords();
 	}
-	// Skipped with "a" in front of method name..
-	function atest_1Mstrl_1K_records(){
+	function test_1Mstrl_1K_records(){
 		$this->strSize = 100;
 		$this->records = 1000;
 		$this->writeManyStringRecords();

@@ -1,19 +1,11 @@
 <?php
 
-/* ************** Tephlon library configuration ***************************** */
+define("DEBUG", 3);
+define("INFO", 2);
+define("ERROR", 1);
 
-	// The default lifetime of a record, 0 = forever
-	define("DEFAULT_STALE_AGE", 0);
-	
-	// Resources are directories, Records are files containing your objects/vars
-	// In which dir to store them? You may want to put absolute path for clarity.
-	define("FILE_CACHE_DIR", "cache/");
-	
-	// View debug messages
-	define("DEBUG_MODE", true);
-
-/* ************************************************************************** */
-
+require_once("config/tephlon_config.php");
+require_once("lib/Logger.php");
 require_once("lib/FileResource.php");
 
 class Tephlon {
@@ -21,11 +13,10 @@ class Tephlon {
 		$ctx = self::extractContext($that);
 		// List of available drivers
 		if($driverName == "File"){
-			return new
-			FileResource($ctx);
+			return new FileResource($ctx);
 		}
 		else{
-			dlog("Driver $driverName not found");
+			dlog("Driver $driverName not found", ERROR);
 			die();
 		}
 	}
@@ -34,13 +25,25 @@ class Tephlon {
 			return get_class($that);
 		}
 		return "";
+
 	}
 }
 
+/******************** Procedural Practicalities.. **************************/
 
-function dlog($msg, $debug_level = false){
-	date_default_timezone_set("EET");
-	if(DEBUG_MODE || !$debug_level){
-		echo "[".date("h:i:s u")."] ".$msg."\n";
-	}
+/**
+ *  Logging is more practical to access from global scope
+ *   better to call dlog() than $something->dlog(), right?
+ */
+function dlog($msg, $ll = INFO){
+	$l = Logger::getInstance();
+	$l->dlog($msg, $ll);
+}
+
+/**
+ * First log line, to show when we initialized the library.
+ */
+date_default_timezone_set("EET");
+if(LOG_VERBOSITY > 1){
+	print("*** Tephlon init: ".date("D, d M Y @ h:i:s")."\n");
 }

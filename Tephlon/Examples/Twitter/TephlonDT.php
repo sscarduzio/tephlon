@@ -8,7 +8,7 @@
 require_once("../../Tephlon.php");
 class TephlonDT {
 	protected $tephlon_label;
-	protected $lifetime = 0;
+	protected $lifetime = 10;
 	protected $tr;
 
 	protected function tephlonInit($that, $label, $default = null){

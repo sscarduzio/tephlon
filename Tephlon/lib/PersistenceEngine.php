@@ -13,10 +13,10 @@ class PersistenceEngine {
 	protected function setContext($ctx){
 		if($this->context != $ctx){
 			if($this->context == null){
-				dlog("context init: $ctx", true);
+				dlog("context init: $ctx", DEBUG);
 			}
 			else{
-				dlog("context changed: $ctx", true);
+				dlog("context changed: $ctx", INFO);
 			}
 			$this->context = $ctx;
 			$this->doSetContext($ctx);
@@ -61,7 +61,7 @@ class PersistenceEngine {
 	 */
 	public function retrieve($label, $default=null){
 		if($label == null){
-			dlog("retrieve: null label, returning null");
+			dlog("retrieve: null label, returning null", INFO);
 			return null;
 		}
 		$key = $this->calculateKey($label);
@@ -127,7 +127,7 @@ class PersistenceEngine {
 			return $this->doDelete($key);
 		}
 		if(!is_string($label)){
-			dlog("non-string given as a key for delete!");
+			dlog("non-string given as a key for delete!", INFO);
 			return false;
 		}
 		$key = $this->calculateKey($label);

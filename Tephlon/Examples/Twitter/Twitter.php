@@ -2,7 +2,7 @@
 require_once("UserBoard.php");
 
 // Setup a new user
-$u1 = new User("usr_".time(),"dummypass");
+$u1 = new User(uniqid('user_'),"dummypass");
 $u1->setName("Dummy user");
 
 // Add it to the userboard
@@ -12,9 +12,7 @@ $ub->addUser($u1);
 // Get the flow for the user, fill it with a status msg
 $u1flow = new Flow($u1->getID());
 $u1flow->addStatus("Wow it's so exciting ommayggod!");
-sleep(1);
 $u1flow->addStatus("Now I'm really bored");
-sleep(1);
 $u1flow->addStatus("Tomorrow I kill @the_sckr's dog.");
 
 // Recall all the users from the userboard and iterate their statuses
