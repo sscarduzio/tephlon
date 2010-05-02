@@ -33,6 +33,9 @@ class Logger {
 			$ut =$this->rpadder($ut[1], 'j', 3);
 
 			echo "".date("h:i:s.").$ut." [$type] ".$msg."\n";
+			if($this->getVerbosity() > 1 && $logLevel == ERROR){
+                debug_print_backtrace();				
+			}
 		}
 	}
 

@@ -21,6 +21,13 @@ class PersistenceEngineBasicTest extends UnitTestCase {
 		$this->assertIsA($this->pe,"PersistenceEngine");
 		$this->assertIsA($this->pe,"FileResource");
 	}
+	function testGlobalContextInitialization(){
+		$this->pe = Tephlon::getResource();
+		// Get rid of test records pretty soon, please
+		$this->pe->setStaleAge(10);
+		$this->assertIsA($this->pe,"PersistenceEngine");
+		$this->assertIsA($this->pe,"FileResource");
+	}
 	function testRegisterRetrieveInSameContext(){
 		//$this->clear();
 		// Cache miss

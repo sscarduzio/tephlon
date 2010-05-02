@@ -24,7 +24,7 @@ class Tephlon {
 		if(!is_null($that)){
 			return get_class($that);
 		}
-		return "";
+		return "_global_context_";
 
 	}
 }

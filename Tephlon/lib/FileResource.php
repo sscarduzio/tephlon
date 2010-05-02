@@ -26,7 +26,10 @@ class FileResource extends PersistenceEngine {
 	 * @param $ctx
 	 */
 	protected function doSetContext($ctx){
-
+        if(!$this->cache_path || $this->cache_path == ""){
+        	dlog("File cache dir can't be empty. Please set FILE_CACHE_DIR in tephlon_conf.php", ERROR);
+        	die();
+        }
 		if(!file_exists($this->cache_path)){
 			mkdir($this->cache_path, 0777, true);
 		}
@@ -53,7 +56,7 @@ class FileResource extends PersistenceEngine {
 				dlog("ERROR: cleanStaleFiles($path): unable to read $file_path",DEBUG);
 			}
 			if($the_record->isStale()){
-				dlog("Self Maintainance: Removing stale $file_path", DEBUG);
+				dlog("Self Maintainance: Removing stale".realpath($file_path), DEBUG);
 				unlink($file_path);
 			}
 		}
