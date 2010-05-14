@@ -7,9 +7,9 @@ require_once('simpletest/autorun.php');
 require_once('../Tephlon.php');
 
 class PersistenceEngineBasicTest extends UnitTestCase {
-	private $pe = null;
-	private $testString = "0123456789";
-	private $testLabel = "test_label";
+	public $pe = null;
+	public $testString = "0123456789";
+	public $testLabel = "test_label";
 
 	function clear(){
 		include("clear_cache.php");
@@ -35,12 +35,12 @@ class PersistenceEngineBasicTest extends UnitTestCase {
 		$this->assertNotNull($result, "Result of register was null");
 		echo "MISS: Trying to fetch (same context) ".$this->testLabel."\n";
 		$result = $this->pe->retrieve($this->testLabel);
-		$this->assertEqual($result, $this->testString, "\"$result\" was retrieved, expected $testString");
+		$this->assertEqual($result, $this->testString, "\"$result\" was retrieved, expected $this->testString");
 
 		// Cache hit
 		echo "HIT: Trying to fetch (same context) ".$this->testLabel."\n";
 		$result = $this->pe->retrieve($this->testLabel);
-		$this->assertEqual($result, $this->testString, "\"$result\" was retrieved, expected $testString");
+		$this->assertEqual($result, $this->testString, "\"$result\" was retrieved, expected $this->testString");
 	}
 
 	function testLifetimeOfRecords(){
