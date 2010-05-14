@@ -43,10 +43,9 @@ class FileResource extends PersistenceEngine {
 				$this->cleanStaleFiles($dir);
 			}
 		}
-
 	}
 	private function cleanStaleFiles($path){
-		$fileList = glob($path."/*");
+		$fileList = glob($path."/*".$this->cache_suffix);
 		foreach ($fileList as $file_path){
 			//xyz.txt
 			$file_name = basename ($file_path);
@@ -68,13 +67,13 @@ class FileResource extends PersistenceEngine {
 		}
 		return $this->cache_path;
 	}
+	
 	/**
 	 * Implementation specific low level write operation
 	 *
 	 * @param Record $record
 	 * @return boolean
 	 */
-
 	protected function doRegister($record){
 		$key = $record->getKey();
 		// Dump to file
@@ -84,9 +83,8 @@ class FileResource extends PersistenceEngine {
 			if(!file_exists(dirname($file_path))){
 				mkdir(dirname($file_path), 0777, true);
 			}
-			$fp = fopen($file_path, "w");
-			fwrite($fp,serialize($record));
-			fclose($fp);
+			// Mutex lock for writes
+			file_put_contents($file_path, serialize($record), LOCK_EX);
 		}catch (Exception $e){
 			dlog("Unable to write record to file: ".$key, ERROR);
 			return false;
