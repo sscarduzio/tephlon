@@ -2,5 +2,4 @@
 <buildpath>
 	<buildpathentry combineaccessrules="false" kind="prj" path="/SimpleTest"/>
 	<buildpathentry kind="con" path="org.eclipse.php.core.LANGUAGE"/>
-	<buildpathentry kind="src" path=""/>
 </buildpath>
