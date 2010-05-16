@@ -72,11 +72,12 @@ class FileResource extends PersistenceEngine {
 		}
 		return $this->cache_path;
 	}
-
+   
 	private function deleteDirTree($dir, $delete_root=false) {
 		$status = true;
 		if(!file_exists($dir)){
 			dlog("delete dir tree: dir not found $dir",INFO);
+			return true;
 		}
 		$iterator = new RecursiveDirectoryIterator($dir);
 		foreach (new RecursiveIteratorIterator($iterator, RecursiveIteratorIterator::CHILD_FIRST) as $file)
