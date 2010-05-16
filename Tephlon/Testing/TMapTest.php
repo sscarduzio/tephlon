@@ -7,7 +7,7 @@ class TMapTest extends UnitTestCase {
 	private $m;
 	private $dimension = 20;
 	function __construct(){
-		$this->m = new TMap();
+		$this->m = new TMap($this);
 	}
 	function testPut($k = null, $v = null){
 		if(is_null($k)){

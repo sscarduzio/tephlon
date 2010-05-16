@@ -54,8 +54,8 @@ class TMap extends TephlonType{
     private $map = array();
     //private $rmap = array();
 
-    public function __construct(){
-        parent::__construct($this);
+    public function __construct($that){
+        parent::__construct($that);
     }
     
     public function put($mkey, $mval){
