@@ -26,10 +26,10 @@ class FileResource extends PersistenceEngine {
 	 * @param $ctx
 	 */
 	protected function doSetContext($ctx){
-        if(!$this->cache_path || $this->cache_path == ""){
-        	dlog("File cache dir can't be empty. Please set FILE_CACHE_DIR in tephlon_conf.php", ERROR);
-        	die();
-        }
+		if(!$this->cache_path || $this->cache_path == ""){
+			dlog("File cache dir can't be empty. Please set FILE_CACHE_DIR in tephlon_conf.php", ERROR);
+			die();
+		}
 		if(!file_exists($this->cache_path)){
 			mkdir($this->cache_path, 0777, true);
 		}
@@ -61,13 +61,40 @@ class FileResource extends PersistenceEngine {
 		}
 	}
 
+	protected function doClear(){
+		dlog("clear all records, wiping whole cache dir: ".$this->getCachePath(), INFO);
+		return $this->deleteDirTree($this->getCachePath());
+	}
+
 	private function getCachePath(){
 		if(!is_null($this->context)){
 			return $this->cache_path.$this->getContext()."/";
 		}
 		return $this->cache_path;
 	}
-	
+
+	private function deleteDirTree($dir, $delete_root=false) {
+		$status = true;
+		if(!file_exists($dir)){
+			dlog("delete dir tree: dir not found $dir",INFO);
+		}
+		$iterator = new RecursiveDirectoryIterator($dir);
+		foreach (new RecursiveIteratorIterator($iterator, RecursiveIteratorIterator::CHILD_FIRST) as $file)
+		{
+			if ($file->isDir()) {
+				$r = rmdir($file->getPathname());
+			} else {
+				$r = unlink($file->getPathname());
+			}
+			$status &= $r;
+		}
+		// We dont want to delete the main resource's dir.
+		if($delete_root){
+			return $status &= rmdir($dir);
+		}
+		return $status;
+	}
+
 	/**
 	 * Implementation specific low level write operation
 	 *
@@ -112,14 +139,38 @@ class FileResource extends PersistenceEngine {
 		$fn = $this->key2filepath($key);
 		if(file_exists($fn)){
 			unlink($fn);
+			if(count(glob(dirname($fn)."/*ser")) == 0){
+                $this->deleteDirTree(dirname($fn), true);
+			}
 			return true;
 		}
 		return false;
 	}
-
+	protected function doExists($key){
+		$fn = $this->key2filepath($key);
+		if(file_exists($fn)){
+			return true;
+		}
+		return false;
+	}
 	private function key2filepath($key){
 		$len = strlen($key);
 		$subdir = substr($key, $len-1, $len);
 		return $this->getCachePath().$subdir."/".$key.".".$this->cache_suffix;
+	}
+	
+	protected function doGetIndex(){
+		$arr = glob($this->getCachePath()."/*/*.ser");
+		$out = array();
+		foreach ($arr as $fn){
+			$label = basename($fn, $this->cache_suffix);
+			$len = strlen($label);
+			// Strip md5 and the '-' from the bottom of string
+			$label = substr($label, 0, $len - 34);
+			$a = explode('.', $label);
+			$out[] = $a[1];
+				
+		}
+		return $out;
 	}
 }

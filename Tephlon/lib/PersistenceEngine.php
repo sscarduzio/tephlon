@@ -26,8 +26,11 @@ class PersistenceEngine {
 	protected function getContext(){
 		return $this->context;
 	}
-	public function clean(){
+	public function refresh(){
 		$this->doSetContext($this->getContext());
+	}
+	public function clear(){
+		return $this->doClear();
 	}
 	/**
 	 * Set the maximum age for a record to be considered stale
@@ -132,5 +135,13 @@ class PersistenceEngine {
 		}
 		$key = $this->calculateKey($label);
 		return $this->doDelete($key);
+	}
+	
+	public  function exists($label){
+		$key = $this->calculateKey($label);
+		return $this->doExists($key);
+	}
+	public function getIndex(){
+		return $this->doGetIndex();
 	}
 }
