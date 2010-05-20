@@ -18,7 +18,6 @@ class PersistenceEngine {
 			else{
 				dlog("context changed: $ctx", INFO);
 			}
-			$this->validateName($ctx);
 			$this->context = $ctx;
 			$this->doSetContext($ctx);
 		}
