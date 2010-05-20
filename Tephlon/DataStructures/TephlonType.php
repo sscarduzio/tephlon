@@ -10,7 +10,7 @@
  *
  */
 
-require_once("../Tephlon.php");
+require_once(dirname(__FILE__)."/../Tephlon.php");
 class TephlonType {
 	protected $tephlon_lifetime = DEFAULT_STALE_AGE;
 	protected $tr = null;
