@@ -86,7 +86,7 @@ class PersistenceEngine {
 
 	private function validateName($label){
 		try{
-			$len = srtlen($label);
+			$len = strlen($label);
 			if($label === null || $len < 1){
 				throw new Exception("Name was null, invalid name.");
 			}
