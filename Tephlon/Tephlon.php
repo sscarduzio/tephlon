@@ -7,6 +7,7 @@ define("ERROR", 1);
 require_once("config/tephlon_config.php");
 require_once("lib/Logger.php");
 require_once("lib/FileResource.php");
+require_once("DataStructures/TMap.php");
 
 class Tephlon {
 	public static function getResource($that = null, $driverName="File"){
@@ -22,7 +23,11 @@ class Tephlon {
 	}
 	private static function extractContext($that){
 		if(!is_null($that)){
-			return get_class($that);
+			// we hash all the object so that if we have instances which
+			// differ by just the content of a field, they will have own
+			// context.
+			// return(sha1(serialize($that)));
+			return(get_class($that).".".sha1(serialize($that)));
 		}
 		return "_global_context_";
 
