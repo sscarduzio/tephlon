@@ -22,7 +22,7 @@ class PersistenceEngine {
 			$this->doSetContext($ctx);
 		}
 	}
-	
+
 	protected function getContext(){
 		return $this->context;
 	}
@@ -67,7 +67,7 @@ class PersistenceEngine {
 			dlog("retrieve: null label, returning null", INFO);
 			return null;
 		}
-		$key = $this->calculateKey($label);
+		$key = $this->label2key($label);
 		$record = $this->doRetrieve($key);
 		if($record){
 			if($record->isStale()){
@@ -84,21 +84,29 @@ class PersistenceEngine {
 		return null;
 	}
 
-
-	private function calculateKey($label){
+	private function validateLabel($label){
 		try{
-			if(!$label || !is_string($label) || strlen($label) < 1){
+			if($label === null || strlen($label) < 1){
 				throw new Exception("You need to provide a label to register an object");
 			}
-			if($this->context){
-				$key  = $this->context.".";
+			if(strlen($label) > 200 || strlen($label) < 1){
+				throw new Exception("Invalid label length: ".strlen($label));
 			}
-			$key = $key.$label;
-			return ($key."-".md5($key));
+			$badchars = array(' ', '\\', '/', ':', '*', '?', '"', '<', '>', '|');
+			foreach ( $badchars as $bc){
+				if(strpos($bc, $label ) >= 0 ){
+					throw new Exception("Invalid character found in label".$bc);
+				}
+			}
+			return true;
 		}
 		catch(Exception $e){
 			die($e);
 		}
+	}
+
+	private function label2key($label){
+		return $label;
 	}
 
 	/**
@@ -109,7 +117,13 @@ class PersistenceEngine {
 	 * @param int $expire_in_seconds
 	 */
 	public function register($object, $label, $expire_in_seconds = DEFAULT_STALE_AGE){
-		$key = $this->calculateKey($label);
+		if(is_null($object)){
+			dlog("Registering null object, skipping writing.", WARNING);
+			// Returning true because it's not unsuccessful, we anyway return null
+			// if we can't retrieve a label, and that will be the null he registered.
+			return true;
+		}
+		$key = $this->label2key($label);
 
 		$record = new Record($key, $object, $expire_in_seconds);
 		if(!$this->doRegister($record)){
@@ -133,12 +147,12 @@ class PersistenceEngine {
 			dlog("non-string given as a key for delete!", INFO);
 			return false;
 		}
-		$key = $this->calculateKey($label);
+		$key = $this->label2key($label);
 		return $this->doDelete($key);
 	}
-	
+
 	public  function exists($label){
-		$key = $this->calculateKey($label);
+		$key = $this->label2key($label);
 		return $this->doExists($key);
 	}
 	public function getIndex(){

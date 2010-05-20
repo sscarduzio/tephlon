@@ -140,6 +140,7 @@ class FileResource extends PersistenceEngine {
 		$fn = $this->key2filepath($key);
 		if(file_exists($fn)){
 			unlink($fn);
+			// The last record to be deleted deletes also its subdir
 			if(count(glob(dirname($fn)."/*ser")) == 0){
                 $this->deleteDirTree(dirname($fn), true);
 			}
@@ -147,6 +148,7 @@ class FileResource extends PersistenceEngine {
 		}
 		return false;
 	}
+	
 	protected function doExists($key){
 		$fn = $this->key2filepath($key);
 		if(file_exists($fn)){
@@ -154,23 +156,23 @@ class FileResource extends PersistenceEngine {
 		}
 		return false;
 	}
+	
 	private function key2filepath($key){
-		$len = strlen($key);
-		$subdir = substr($key, $len-1, $len);
+		$md5 = md5($key);
+		$subdir = substr($md5, 30, 31);
 		return $this->getCachePath().$subdir."/".$key.".".$this->cache_suffix;
+	}
+	
+	private function filepath2key($fp){
+		return basename($fp,".".$this->cache_suffix);
 	}
 	
 	protected function doGetIndex(){
 		$arr = glob($this->getCachePath()."/*/*.ser");
 		$out = array();
 		foreach ($arr as $fn){
-			$label = basename($fn, $this->cache_suffix);
-			$len = strlen($label);
-			// Strip md5 and the '-' from the bottom of string
-			$label = substr($label, 0, $len - 34);
-			$a = explode('.', $label);
-			$out[] = $a[1];
-				
+			$key = $this->filepath2key($fn);
+			$out[] = $key;			
 		}
 		return $out;
 	}
