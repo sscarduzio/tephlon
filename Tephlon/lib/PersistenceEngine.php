@@ -86,10 +86,11 @@ class PersistenceEngine {
 
 	private function validateName($label){
 		try{
-			if($label === null || strlen($label) < 1){
+			$len = srtlen($label);
+			if($label === null || $len < 1){
 				throw new Exception("Name was null, invalid name.");
 			}
-			if(strlen($label) > 200 || strlen($label) < 1){
+			if($len > 200 || $len < 1){
 				throw new Exception("Invalid name length: ".strlen($label));
 			}
 			$badchars = array(' ', '\\', '/', ':', '*', '?', '"', '<', '>', '|');
@@ -101,7 +102,7 @@ class PersistenceEngine {
 			return true;
 		}
 		catch(Exception $e){
-			die($e);
+			die("ValidateName(): ".$e);
 		}
 	}
 
