@@ -30,9 +30,9 @@ class PerformanceTest extends UnitTestCase {
 		 $this->records, strlen($this->testString), $time_elapsed, $this->records/$time_elapsed);
 	}
 
-	function cleanManyStringRecords(){
+	function clearManyStringRecords(){
 		$time_start = microtime(1);
-		$this->t->clean();
+		$this->t->clear();
 		$time_end = microtime(1);
 		$time_elapsed = $time_end - $time_start;
 		// echo printf("\nDELETE:\t%d Records\t(strlen: %d)\tin in %f seconds\t[%f RPS]\n",
@@ -42,13 +42,13 @@ class PerformanceTest extends UnitTestCase {
 		$this->strSize = 10;
 		$this->records = 100;
 		$this->writeManyStringRecords();
-		$this->cleanManyStringRecords();
+		$this->clearManyStringRecords();
 	}
 	function test_1Mstrl_1K_records(){
 		$this->strSize = 100;
 		$this->records = 1000;
 		$this->writeManyStringRecords();
-		$this->cleanManyStringRecords();
+		$this->clearManyStringRecords();
 
 	}
 
