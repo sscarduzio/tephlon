@@ -18,6 +18,7 @@ class PersistenceEngine {
 			else{
 				dlog("context changed: $ctx", INFO);
 			}
+			$this->validateName($ctx);
 			$this->context = $ctx;
 			$this->doSetContext($ctx);
 		}
@@ -84,18 +85,18 @@ class PersistenceEngine {
 		return null;
 	}
 
-	private function validateLabel($label){
+	private function validateName($label){
 		try{
 			if($label === null || strlen($label) < 1){
-				throw new Exception("You need to provide a label to register an object");
+				throw new Exception("Name was null, invalid name.");
 			}
 			if(strlen($label) > 200 || strlen($label) < 1){
-				throw new Exception("Invalid label length: ".strlen($label));
+				throw new Exception("Invalid name length: ".strlen($label));
 			}
 			$badchars = array(' ', '\\', '/', ':', '*', '?', '"', '<', '>', '|');
 			foreach ( $badchars as $bc){
-				if(strpos($bc, $label ) >= 0 ){
-					throw new Exception("Invalid character found in label".$bc);
+				if(strpos($bc, $label )){
+					throw new Exception("Invalid character found in name: ".$bc);
 				}
 			}
 			return true;
@@ -106,7 +107,9 @@ class PersistenceEngine {
 	}
 
 	private function label2key($label){
-		return $label;
+		if($this->validateName($label)){
+			return $label;
+		}
 	}
 
 	/**
