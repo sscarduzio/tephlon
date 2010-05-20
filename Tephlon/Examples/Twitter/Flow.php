@@ -1,47 +1,51 @@
 <?php
 /**
  * This class represents the twitter status flow of a certain user.
- * A Flow contains N status strings. 
- * 
+ * A Flow contains N status strings.
+ *
  * @author Simone
  *
  */
 
-require_once("TephlonDT.php");
+require_once("../../Tephlon.php");
 
-class Flow extends TephlonDT{
+class Flow {
 	protected $owner_id;
 	// Associative array  "timestamp" => "status string"
 	protected $statuses;
 
 	public function __construct($owner_id){
-		$this->statuses = $this->tephlonInit($this, $owner_id);
+		// Set owner id BEFORE creating TMap
+		// so we pass a different "$this" for
+		// each owner_id!
 		$this->owner_id = $owner_id;
+		$this->statuses = new TMap($this);
 		if(!$this->statuses){
-			$this->statuses = array();
+			die("could not create TMap!");
 		}
 	}
 	public function addStatus($status){
-		if(!is_string($status) || strlen($status) < 1){
+		// Status ID is a timestamp
+		$statusID = time(); sleep(1);
+		if(!$this->statuses->put($statusID, $status)){
 			die("invalid status, must be string and not empty.");
 		}
-		$this->statuses[time().uniqid("_")] = $status;
-		$this->tephlonSave($this->statuses);
 	}
 	public function getAll(){
-		return $this->statuses;
+		return $this->statuses->getAll();
 	}
 
-	public function deleteStatus($which){
-		if($which == "all"){
-			$this->statuses = array();
-			$this->tephlonSave(array());
+	public function deleteStatus($statusID){
+		if($this->statuses->containsKey($statusID)){
+			die("statusID not valid / not found");
 		}
-		if(!$which || in_array($which, $this->statuses)){
-			die("delete what status?");
-		}
-		unset($this->statuses[$which]);
-		$this->tephlonSave($this->statuses);
+		$this->statuses->remove($statusID);
+	}
+	public function count(){
+		return $this->statuses->size();
+	}
+	public function clear(){
+		$this->statuses->clear();
 	}
 
 }

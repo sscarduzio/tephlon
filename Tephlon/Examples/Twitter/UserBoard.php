@@ -1,53 +1,49 @@
 <?php
 
+require_once("../../Tephlon.php");
 require_once("User.php");
 
-class UserBoard extends TephlonDT{
+class UserBoard {
 	private $users = array();
 
 	public function __construct(){
-		/*
-		$this->users = $this->tephlonInit("UserBoard");
-		if(!$this->users){
-			$this->users = array();
-		}
-		*/
-		// More simply, with the "default" optional parameter:
-		$this->users = $this->tephlonInit($this, "UserBoard", array());
-	}
-	
-	public function addUser($user){
-		if($user instanceof User && in_array($user->getID(), $this->users)){
-			die("User ID is already present in the system!");
-		}
-		return $this->writeUser($user);
-	}
-	
-	public function updateUser($user){
-		if($user instanceof User && in_array($user->getID,$this->users)){
-			return $this->writeUser($user);
-		}
-		die("User not found / Invalid user");
+		$this->users = new TMap($this);
 	}
 
-	private function writeUser($user){
-		$this->users[$user->getID()] = $user;
-		return $this->tephlonSave($this->users);
+	public function addUser($user){
+		if(!($user instanceof User)){
+			die("Not an user object");
+		}
+		if( $this->users->containsKey($user->getID()) ){
+			die("User ID is already present in the system!");
+		}
+		return $this->users->put($user->getID(), $user);
 	}
-	
+
+	public function updateUser($user){
+		if(!($user instanceof User)){
+			die("Not an user object");
+		}
+		if($this->users->containsKey($user->getID()) ){
+			return $this->writeUser($user);
+		}
+		die("User ".$this->getID()." not found");
+	}
+
 	public function deleteUser($user){
 		if(!($user instanceof User)){
 			die("can't delete invalid user object");
 		}
-		if(!in_array($user->getID())){
+		if(!$this->users->containsKey($user->getID())){
 			print("won't delete ".$user->getID().", user not found.");
 			return;
 		}
-		unset($this->users[$user->getID()]);
-		$this->tephlonSave($this->users);
-		
+		// Clean statuses of this user
+        $myflow = new Flow($user->getID());
+        $myflow->clear();
+		$this->users->remove($user->getID());
 	}
 	public function getAll(){
-		return $this->users;
+		return $this->users->values();
 	}
 }

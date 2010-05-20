@@ -27,4 +27,5 @@ class User {
 	public function auth($pass_hash){
 		return ($pass_hash == $this->pass_hash);
 	}
+	
 }
