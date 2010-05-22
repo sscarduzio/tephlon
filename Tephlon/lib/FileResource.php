@@ -16,7 +16,9 @@ class FileResource extends PersistenceEngine {
 	private $cache_suffix = "ser";
 
 	public function __construct($context){
-		$this->setContext($context);
+		if($this->setContext($context) === false){
+			$this->context = false;
+		}
 	}
 
 	/**
@@ -26,9 +28,9 @@ class FileResource extends PersistenceEngine {
 	 * @param $ctx
 	 */
 	protected function doSetContext($ctx){
-		if(!$this->cache_path || $this->cache_path == ""){
-			dlog("File cache dir can't be empty. Please set FILE_CACHE_DIR in tephlon_conf.php", ERROR);
-			die();
+		if(!is_string($this->cache_path) || $this->cache_path == ""){
+			dlog("File cache dir must be non empty string. Please set FILE_CACHE_DIR in tephlon_conf.php", ERROR);
+			return false;
 		}
 		if(!file_exists($this->cache_path)){
 			mkdir($this->cache_path, 0777, true);
@@ -43,6 +45,7 @@ class FileResource extends PersistenceEngine {
 				$this->cleanStaleFiles($dir);
 			}
 		}
+		return true;
 	}
 	private function cleanStaleFiles($path){
 		$fileList = glob($path."/*".$this->cache_suffix);
@@ -72,7 +75,7 @@ class FileResource extends PersistenceEngine {
 		}
 		return $this->cache_path;
 	}
-   
+	 
 	private function deleteDirTree($dir, $delete_root=false) {
 		$status = true;
 		if(!file_exists($dir)){
@@ -105,15 +108,14 @@ class FileResource extends PersistenceEngine {
 	protected function doRegister($record){
 		$key = $record->getKey();
 		// Dump to file
-		try{
-			$file_path = $this->key2filepath($key);
-			// Added support for multi-dir scalable file storage
-			if(!file_exists(dirname($file_path))){
-				mkdir(dirname($file_path), 0777, true);
-			}
-			// Mutex lock for writes
-			file_put_contents($file_path, serialize($record), LOCK_EX);
-		}catch (Exception $e){
+
+		$file_path = $this->key2filepath($key);
+		// Added support for multi-dir scalable file storage
+		if(!file_exists(dirname($file_path))){
+			mkdir(dirname($file_path), 0777, true);
+		}
+		// Mutex lock for writes
+		if(!file_put_contents($file_path, serialize($record), LOCK_EX)){
 			dlog("Unable to write record to file: ".$key, ERROR);
 			return false;
 		}
@@ -142,13 +144,13 @@ class FileResource extends PersistenceEngine {
 			unlink($fn);
 			// The last record to be deleted deletes also its subdir
 			if(count(glob(dirname($fn)."/*ser")) == 0){
-                $this->deleteDirTree(dirname($fn), true);
+				$this->deleteDirTree(dirname($fn), true);
 			}
 			return true;
 		}
 		return false;
 	}
-	
+
 	protected function doExists($key){
 		$fn = $this->key2filepath($key);
 		if(file_exists($fn)){
@@ -156,23 +158,23 @@ class FileResource extends PersistenceEngine {
 		}
 		return false;
 	}
-	
+
 	private function key2filepath($key){
 		$md5 = md5($key);
 		$subdir = substr($md5, 30, 31);
 		return $this->getCachePath().$subdir."/".$key.".".$this->cache_suffix;
 	}
-	
+
 	private function filepath2key($fp){
 		return basename($fp,".".$this->cache_suffix);
 	}
-	
+
 	protected function doGetIndex(){
 		$arr = glob($this->getCachePath()."/*/*.ser");
 		$out = array();
 		foreach ($arr as $fn){
 			$key = $this->filepath2key($fn);
-			$out[] = $key;			
+			$out[] = $key;
 		}
 		return $out;
 	}
