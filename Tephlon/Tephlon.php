@@ -12,25 +12,30 @@ require_once("DataStructures/TMap.php");
 class Tephlon {
 	public static function getResource($that = null, $driverName="File"){
 		$ctx = self::extractContext($that);
+		if($ctx === false){
+			dlog("Can't create this resource", ERROR);
+			return false;
+		}
 		// List of available drivers
 		if($driverName == "File"){
-			return new FileResource($ctx);
+			$r = new FileResource($ctx);
 		}
 		else{
 			dlog("Driver $driverName not found", ERROR);
-			die();
+			return false;
 		}
+		return $r;
 	}
-	private static function extractContext($that){
-		if(!is_null($that)){
-			// we hash all the object so that if we have instances which
-			// differ by just the content of a field, they will have own
-			// context.
-			// return(sha1(serialize($that)));
-			return(get_class($that).".".sha1(serialize($that)));
+	
+	private static function extractContext($label){
+		if(is_null($label)){
+			return "_global_context_";
 		}
-		return "_global_context_";
-
+		if(is_object($label)){
+			$label = get_class($label).".".sha1(serialize($label));
+			return $label;
+		}
+		return PersistenceEngine::validateContext($label);
 	}
 }
 
