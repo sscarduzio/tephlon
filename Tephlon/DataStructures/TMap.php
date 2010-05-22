@@ -100,7 +100,9 @@ class TMap extends TephlonType{
 		}
 		return $v;
 	}
-
+	public function refresh(){
+		$this->tr->refresh();
+	}
 	public function size(){
 		return count($this->tr->getIndex());
 	}
