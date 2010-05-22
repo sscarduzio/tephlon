@@ -9,7 +9,6 @@ class PersistenceEngine {
 	protected $context;
 	protected static $stale_age = DEFAULT_STALE_AGE;
 
-
 	protected function setContext($ctx){
 		if($this->context != $ctx){
 			if($this->context == null){
@@ -19,11 +18,11 @@ class PersistenceEngine {
 				dlog("context changed: $ctx", INFO);
 			}
 			$this->context = $ctx;
-			$this->doSetContext($ctx);
+			return $this->doSetContext($ctx);
 		}
 	}
 
-	protected function getContext(){
+	public function getContext(){
 		return $this->context;
 	}
 	public function refresh(){
@@ -67,6 +66,9 @@ class PersistenceEngine {
 			dlog("retrieve: null label, returning null", INFO);
 			return null;
 		}
+		if(!$this->validateName($label)){
+			return null;
+		}
 		$key = $this->label2key($label);
 		$record = $this->doRetrieve($key);
 		if($record){
@@ -85,25 +87,29 @@ class PersistenceEngine {
 	}
 
 	private function validateName($label){
-		try{
-			$len = strlen($label);
-			if($label === null || $len < 1){
-				throw new Exception("Name was null, invalid name.");
-			}
-			if($len > 200 || $len < 1){
-				throw new Exception("Invalid name length: ".strlen($label));
-			}
+		if($label === null){
+			dlog("Name was null, invalid name.",ERROR);
+			return false;
+		}
+		//if(is_numeric($label))
+		$len = strlen($label);
+		if($len > 200 || $len < 1){
+			dlog("Invalid name length: ".strlen($label), ERROR);
+			return false;
+		}
+		if(is_string($label)){
 			$badchars = array(' ', '\\', '/', ':', '*', '?', '"', '<', '>', '|');
 			foreach ( $badchars as $bc){
-				if(strpos($bc, $label )){
-					throw new Exception("Invalid character found in name: ".$bc);
+				if( is_numeric(strpos( $label, $bc )) ){
+					dlog("Invalid character found in name: ".$bc, ERROR);
+					return false;
 				}
 			}
-			return true;
 		}
-		catch(Exception $e){
-			die("ValidateName(): ".$e);
-		}
+		return true;
+	}
+	public static function validateContext($ctx){
+		return self::validateName($ctx);
 	}
 
 	private function label2key($label){
@@ -120,6 +126,9 @@ class PersistenceEngine {
 	 * @param int $expire_in_seconds
 	 */
 	public function register($object, $label, $expire_in_seconds = DEFAULT_STALE_AGE){
+		if(!$this->validateName($label)){
+			return null;
+		}
 		if(is_null($object)){
 			dlog("Registering null object, skipping writing.", WARNING);
 			// Returning true because it's not unsuccessful, we anyway return null
@@ -146,15 +155,17 @@ class PersistenceEngine {
 			$key = $record->getKey();
 			return $this->doDelete($key);
 		}
-		if(!is_string($label)){
-			dlog("non-string given as a key for delete!", INFO);
-			return false;
+		if(!$this->validateName($label)){
+			return null;
 		}
 		$key = $this->label2key($label);
 		return $this->doDelete($key);
 	}
 
 	public  function exists($label){
+		if(!$this->validateName($label)){
+			return null;
+		}
 		$key = $this->label2key($label);
 		return $this->doExists($key);
 	}
