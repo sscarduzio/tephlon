@@ -11,9 +11,7 @@ class PersistenceEngineBasicTest extends UnitTestCase {
 	public $testString = "0123456789";
 	public $testLabel = "test_label";
 
-	function clear(){
-		include("clear_cache.php");
-	}
+
 	function testInitialization(){
 		$this->pe = Tephlon::getResource($this);
 		// Get rid of test records pretty soon, please
@@ -59,7 +57,7 @@ class PersistenceEngineKeyCollisionTest extends UnitTestCase{
 	private $pe = null;
 	private $testString = "0123456789";
 	private $testLabel = "test_label";
-	
+
 	function testRetrieveInDifferentContext(){
 		$this->pe = Tephlon::getResource();
 		// The retrieve now is called from a different trace context
@@ -73,23 +71,31 @@ class PersistenceEngineCRUDTest extends UnitTestCase{
 	private $testString = "A0123456789";
 	private $newTestString = "ABCDEFGHILM";
 	private $testLabel = "test_label";
-	
+    
+	function runTests($pe = null){
+		$this->pe = $pe;
+		$this->testCreate();
+		$this->testUpdate();
+		$this->testDelete();
+	}
 	function testCreate(){
-		$this->pe = Tephlon::getResource();
+		if(is_null($this->pe)){
+			$this->pe = Tephlon::getResource();
+		}
 		$result = $this->pe->retrieve($this->testLabel.time());
 		$this->assertNull($result,"Freshly created record is not null");
 		// Test the retrieve default value
 		$result = $this->pe->retrieve($this->testLabel,$this->testString);
 		$this->assertEqual($this->testString,$result, "Default parameter of retrieve() does not work");
-	} 	
+	}
 	function testRead(){
 		// Already tested
 	}
-	function testUpdate(){ 
+	function testUpdate(){
 		$obj = $this->pe->retrieve($this->testLabel);
 		$this->assertNotNull($obj, "Could not retrieve record set in another method");
 		$obj = $this->newTestString;
-		
+
 		$this->pe->register($obj , $this->testLabel);
 		// Now result contains the label
 		$updated = $this->pe->retrieve($this->testLabel);
@@ -97,5 +103,96 @@ class PersistenceEngineCRUDTest extends UnitTestCase{
 	}
 	function testDelete(){
 		$this->pe->delete($this->testLabel);
+	}
+}
+class invalidLabelsTest extends UnitTestCase{
+	private $str201 = null;
+	private $pe = null;
+
+	function __construct(){
+		$a="";
+		for($i = 0; $i < 201; $i++){
+			$a.="a";
+		}
+		$this->str201 = $a;
+	}
+	function testLongResourceLabel(){
+		$this->pe = Tephlon::getResource($this->str201);
+		$this->assertFalse($this->pe,"Too long resource label should return false");
+	}
+	function testWrongCharResourceLabel(){
+		$this->pe = Tephlon::getResource("?test");
+		$this->assertFalse($this->pe,"Invalid character in resource label, should return false");
+	}
+	function testLegalResourceLabel(){
+		$this->validRecLabelExpect = array(
+          "register"  => "some_label",
+          "retrieve"  => "some_content",
+          "exists"    =>  true,
+          "delete"    =>  true
+        );
+        
+		$this->pe = Tephlon::getResource($this);
+		$this->assertTrue($this->pe instanceof PersistenceEngine,
+		  "legal object resource label should have returned instance of PersistenceEngine!");
+		$this->pe->clear();
+		$r = $this->bulkTestRecordLabelMethods("some_label", $this->validRecLabelExpect);
+		$this->assertTrue($r == 0, "$r issues found testing with label = OBJECT");
+
+		$this->pe = Tephlon::getResource("my_nice_perfect_label");
+		$this->assertTrue($this->pe instanceof PersistenceEngine,
+		  "legal string resource label should have returned instance of PersistenceEngine!");
+		$this->pe->clear();
+        $r = $this->bulkTestRecordLabelMethods("some_label", $this->validRecLabelExpect);
+        $this->assertTrue($r == 0, "$r issues found testing with label = STRING");
+		
+		$this->pe = Tephlon::getResource(0);
+		$this->assertTrue($this->pe instanceof PersistenceEngine,
+		  "legal Numeric resource label should have returned instance of PersistenceEngine!");
+		$this->pe->clear();
+		$r = $this->bulkTestRecordLabelMethods("some_label", $this->validRecLabelExpect);
+        $this->assertTrue($r == 0, "$r issues found testing with label = INT (0)");
+		
+		$this->pe = Tephlon::getResource(1);
+		$this->assertTrue($this->pe instanceof PersistenceEngine,
+		  "legal Numeric resource label should have returned instance of PersistenceEngine!");
+		$this->pe->clear();
+		$r = $this->bulkTestRecordLabelMethods("some_label", $this->validRecLabelExpect);
+        $this->assertTrue($r == 0, "$r issues found testing with label = INT (1)");
+		
+	}
+	function bulkTestRecordLabelMethods($labelToTest, $expected_return){
+		$r = array();
+		$failed = 0;
+		$r['register'] = $this->pe->register("some_content", $labelToTest);
+		$r['retrieve'] = $this->pe->retrieve($labelToTest);
+		$r['exists'] = $this->pe->exists($labelToTest);
+		$r['delete'] = $this->pe->delete($labelToTest);
+		foreach($r as $method => $res){
+			if(!($expected_return[$method] === $res)){
+				dlog("Fail: $method returned $res instead of ".
+				$expected_return[$method], ERROR);
+				$failed++;
+			}
+		}
+		return $failed;
+	}
+	function testLongRecordLabel(){
+		$this->pe = Tephlon::getResource($this);
+
+		$this->invalidRecLabelExpect = array(
+		  "register"  => null,
+		  "retrieve"  => null,
+		  "exists"    =>  null,
+		  "delete"    =>  null
+		);
+		$r = $this->bulkTestRecordLabelMethods($this->str201, $this->invalidRecLabelExpect);
+		$this->assertTrue($r == 0, "$r issues found testing long record labels");
+	}
+	function testWrongCharRecordLabel(){
+		$r = $this->bulkTestRecordLabelMethods("/wrongChar", $this->invalidRecLabelExpect);
+		$this->assertTrue($r == 0, "$r issues found testing wrong char record labels");
+		$r = $this->bulkTestRecordLabelMethods("\wrongChar", $this->invalidRecLabelExpect);
+		$this->assertTrue($r == 0, "$r issues found testing wrong char record labels");
 	}
 }
