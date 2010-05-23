@@ -1,16 +1,8 @@
 <?php
 /**
  * This is a map
- * Let's implement the majority of Java's hashmap methods ( the ones with # are
- * implemented, the others make few sense to implement.)
-
- void
- clear()
- Removes all mappings from this map.
-
- boolean
- # containsKey(Object key)
- Returns true if this map contains a mapping for the specified key.
+ * Let's implement the majority of Java's Map methods 
+ * These few remained unimplemented for choice or for will.
 
  boolean
  containsValue(Object value)
@@ -19,34 +11,11 @@
  Set
  entrySet()
  Returns a collection view of the mappings contained in this map.
-
- Object
- # get(Object key)
- Returns the value to which the specified key is mapped in this identity hash map, or null if the map contains no mapping for this key.
-
- boolean
- # isEmpty()
- Returns true if this map contains no key-value mappings.
-
- Object
- # put(Object key, Object value)
- Associates the specified value with the specified key in this map.
-
+ 
  void
  putAll(Map m)
  Copies all of the mappings from the specified map to this map These mappings will replace any mappings that this map had for any of the keys currently in the specified map.
 
- Object
- # remove(Object key)
- Removes the mapping for this key from this map if present.
-
- int
- # size()
- Returns the number of key-value mappings in this map.
-
- Collection
- # values()
- Returns a collection view of the values contained in this map.
  */
 require_once("TephlonType.php");
 
@@ -57,7 +26,12 @@ class TMap extends TephlonType{
 	public function __construct($that){
 		parent::__construct($that);
 	}
-
+    
+	/**
+	 * Associates the specified value with the specified key in this map.
+	 * @param unknown_type $mkey
+	 * @param unknown_type $mval
+	 */
 	public function put($mkey, $mval){
 		if(!strlen($mkey) > 0){
 			dlog("Key $mkey is invalid: ignoring..", DEBUG);
@@ -65,9 +39,20 @@ class TMap extends TephlonType{
 		}
 		return $this->tr->register($mval, $mkey, $this->tephlon_lifetime);
 	}
+	
+	/**
+	 * Returns the value to which the specified key is mapped, 
+	 * or null if the map contains no mapping for this key.
+	 * @param unknown_type $mkey
+	 */
 	public function get($mkey){
 		return $this->tr->retrieve($mkey);
 	}
+	
+	/**
+	 * Removes the mapping for this key from this map if present.
+	 * @param unknown_type $mkey
+	 */
 	public function remove($mkey){
 		if(!is_string($mkey)|| !strlen($mkey) > 0){
 			dlog("can't delete invalid map key, ignoring..", WARNING);
@@ -79,11 +64,17 @@ class TMap extends TephlonType{
 		}
 		return true;
 	}
-
+	
+    /**
+     * Removes all mappings from this map.
+     */
 	public function clear(){
 		return $this->tr->clear();
 	}
-
+	
+    /**
+     * Returns true if this map contains no key-value mappings.
+     */
 	public function isEmpty(){
 		$map = $this->tr->getIndex();
 		foreach($map as $k){
@@ -91,7 +82,11 @@ class TMap extends TephlonType{
 		}
 		return true;
 	}
-	// Associative array k->v
+	
+	/**
+	 * Return an associative array key => value representing all the content
+	 * of this map
+	 */
 	public function getAll(){
 		$map = $this->tr->getIndex();
 		$v = array();
@@ -103,17 +98,28 @@ class TMap extends TephlonType{
 	public function refresh(){
 		$this->tr->refresh();
 	}
+	
+	/**
+	 * Returns the number of key-value mappings in this map.
+	 */
 	public function size(){
 		return count($this->tr->getIndex());
 	}
-
+	
+    /**
+     * Returns true if this map contains a mapping for the specified key.
+     * @param unknown_type $mkey
+     */
 	public function containsKey($mkey){
 		if(is_null($mkey)){
 			return false;
 		}
 		return $this->tr->exists($mkey);
 	}
-
+	
+    /**
+     *  Returns a collection view of the values contained in this map.
+     */
 	public function values(){
 		$map = $this->tr->getIndex();
 		$v = array();

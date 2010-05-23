@@ -1,7 +1,12 @@
 <?php
 /**
  * Generic PersistentEngine
+ * Superclass for all drivers, handles creation, deletion and expirations of 
+ * records, validates labels and namespaces.
+ * Wraps up all the common logic, so that driver just needs to 
+ * perform low level CRUD, listing present keys and such basic stuff.
  */
+
 require_once("Record.php");
 
 class PersistenceEngine {
@@ -22,36 +27,54 @@ class PersistenceEngine {
 		}
 	}
 
+	/**
+	 * Returns the namespace of this resource
+	 */
 	public function getContext(){
 		return $this->context;
 	}
+
+	/**
+	 * Scans for stale records and deletes the expired ones
+	 */
 	public function refresh(){
 		$this->doSetContext($this->getContext());
 	}
 	public function clear(){
 		return $this->doClear();
 	}
+
 	/**
-	 * Set the maximum age for a record to be considered stale
+	 * Set the desired lifetime in seconds for a record before it's considered
+	 * stale.
+	 * Once it's stale it will be eventually wiped out next time you try to 
+	 * retrieve it or call refresh().
+	 * IMPORTANT: if you want records to last forever, set this value to zero.
+	 * 
 	 *
 	 * @param unknown_type $time
 	 * @return void
 	 */
-	public static function setStaleAge($time){
-		if(is_integer($time))
-		self::$stale_age = $time;
+	public static function setLifetime($time){
+		if(is_integer($time) && $time >= 0 ){
+			self::$stale_age = $time;
+			return true;
+		}
+		return false;
 	}
-	public static function getStaleAge(){
+
+	/**
+	 * Gets the configured lifetime of a record
+	 */
+	public static function getLifetime(){
 		return self::$stale_age;
 	}
 
 	/**
-	 * Abstract retriever, check for common validity issues (content and age)
-	 * upon searched record.
-	 *
 	 * Returns the value of the record from storage.
-	 * If it was not found, records the default value
-	 * and returns it.
+	 * If it was not found, and $default is defined, creates a new record containing
+	 * the $default value and having $label as label. And finally returns the call
+	 * with $default value
 	 *
 	 * For technology specific operations (file handling, sql, ..)
 	 * please see specific implementations' "protected doRetrieve()"
@@ -108,6 +131,10 @@ class PersistenceEngine {
 		}
 		return true;
 	}
+	
+	/**
+	 * Validates if a string is legal to be a label or namespace value
+	 */
 	public static function validateContext($ctx){
 		return self::validateName($ctx);
 	}
@@ -119,11 +146,11 @@ class PersistenceEngine {
 	}
 
 	/**
-	 * Save the record to persistence
+	 * Save a record to persistence.
 	 *
-	 * @param unknown_type $object
-	 * @param String $label
-	 * @param int $expire_in_seconds
+	 * @param unknown_type $object The generic item you want to memorize
+	 * @param String $label The label for retrieving it in future
+	 * @param int $expire_in_seconds Optional custom per-record lifetime
 	 */
 	public function register($object, $label, $expire_in_seconds = DEFAULT_STALE_AGE){
 		if(!$this->validateName($label)){
@@ -162,6 +189,10 @@ class PersistenceEngine {
 		return $this->doDelete($key);
 	}
 
+	/**
+	 * Check if we have in storage a valid record for this label
+	 * @param unknown_type $label
+	 */
 	public  function exists($label){
 		if(!$this->validateName($label)){
 			return null;
@@ -169,6 +200,10 @@ class PersistenceEngine {
 		$key = $this->label2key($label);
 		return $this->doExists($key);
 	}
+	
+	/**
+	 * Returns an array of all labels of valid records
+	 */
 	public function getIndex(){
 		return $this->doGetIndex();
 	}
