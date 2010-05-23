@@ -15,14 +15,14 @@ class PersistenceEngineBasicTest extends UnitTestCase {
 	function testInitialization(){
 		$this->pe = Tephlon::getResource($this);
 		// Get rid of test records pretty soon, please
-		$this->pe->setStaleAge(10);
+		$this->pe->setLifetime(10);
 		$this->assertIsA($this->pe,"PersistenceEngine");
 		$this->assertIsA($this->pe,"FileResource");
 	}
 	function testGlobalContextInitialization(){
 		$this->pe = Tephlon::getResource();
 		// Get rid of test records pretty soon, please
-		$this->pe->setStaleAge(10);
+		$this->pe->setLifetime(10);
 		$this->assertIsA($this->pe,"PersistenceEngine");
 		$this->assertIsA($this->pe,"FileResource");
 	}
