@@ -8,6 +8,7 @@
  */
 
 require_once("Record.php");
+require_once("Mutex/Mutex.class.php");
 
 class PersistenceEngine {
 	private static $instance;
@@ -217,28 +218,25 @@ class PersistenceEngine {
 	 * Simple write operations are already automatically atomic, and don't need
 	 * this method to be called.
 	 */
-	public function atomicBegin($label){
-		if(!$this->validateName($label)){
-			return false;
-		}
-		if(!$this->exists($label)){
-			dlog("No record found with label $label: Can't begin atomic");
-			return false;
-		}
-		return $this->doLock($this->label2key($label));
-		// From this moment on, only this process can read/write the record
-		
-		// (unreachable code) didnt get the lock
-		return false;
-	}
-	
-	/**
-	 * End an atomic operation on a record, release the mutex lock.
-	 */
-	public function atomicEnd($label){
-		if(!$this->validateName($label) || !$this->exists($label)){
-			return false;
-		}
-		return $this->doUnlock($this->label2key($label));
-	}
+    public function atomicBegin($label){
+       if(!$this->exists($label)){
+        dlog("Trying to get Mutex for a record whose label does not exist", ERROR);
+        return false;
+       }
+       $m = new Mutex($this->label2key($this->getContext().$label));
+       $m->lock();
+       return true;
+    }
+    
+    /**
+     * Release generic per-record mutex lock
+     */
+    public function atomicEnd($label){
+       if(!$this->exists($label)){
+        dlog("Trying to release Mutex for a record whose label does not exist", ERROR);
+        return false;
+       }
+       $m = new Mutex($this->label2key($this->getContext().$label));
+       $m->unlock();
+    }
 }
