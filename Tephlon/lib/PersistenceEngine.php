@@ -94,15 +94,17 @@ class PersistenceEngine {
 		}
 		$key = $this->label2key($label);
 		$record = $this->doRetrieve($key);
-		if($record){
+		if($record instanceof Record){
 			if($record->isStale()){
 				$this->delete($record);
+				$record = null;
 			}
 			else{
 				return $record->getContent();
 			}
 		}
-		if(!is_null($default)){
+		// Record would now be null just because found as stale!
+		if(!is_null($default) && !$record){
 			$this->register($default, $label);
 			return $default;
 		}
@@ -206,5 +208,37 @@ class PersistenceEngine {
 	 */
 	public function getIndex(){
 		return $this->doGetIndex();
+	}
+	
+	/**
+	 * Start an atomic operation on a record
+	 * Important: use this just if you need atomic logic between read and write,
+	 * for example visit counter.
+	 * Simple write operations are already automatically atomic, and don't need
+	 * this method to be called.
+	 */
+	public function atomicBegin($label){
+		if(!$this->validateName($label)){
+			return false;
+		}
+		if(!$this->exists($label)){
+			dlog("No record found with label $label: Can't begin atomic");
+			return false;
+		}
+		return $this->doLock($this->label2key($label));
+		// From this moment on, only this process can read/write the record
+		
+		// (unreachable code) didnt get the lock
+		return false;
+	}
+	
+	/**
+	 * End an atomic operation on a record, release the mutex lock.
+	 */
+	public function atomicEnd($label){
+		if(!$this->validateName($label) || !$this->exists($label)){
+			return false;
+		}
+		return $this->doUnlock($this->label2key($label));
 	}
 }
