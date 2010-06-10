@@ -55,6 +55,7 @@ class Tephlon {
 		if(PersistenceEngine::validateContext($label)){
 			return $label;
 		}
+		return false;
 	}
 }
 
