@@ -71,7 +71,7 @@ class PersistenceEngineCRUDTest extends UnitTestCase{
 	private $testString = "A0123456789";
 	private $newTestString = "ABCDEFGHILM";
 	private $testLabel = "test_label";
-    
+
 	function runTests($pe = null){
 		$this->pe = $pe;
 		$this->testCreate();
@@ -130,8 +130,8 @@ class invalidLabelsTest extends UnitTestCase{
           "retrieve"  => "some_content",
           "exists"    =>  true,
           "delete"    =>  true
-        );
-        
+		);
+
 		$this->pe = Tephlon::getResource($this);
 		$this->assertTrue($this->pe instanceof PersistenceEngine,
 		  "legal object resource label should have returned instance of PersistenceEngine!");
@@ -143,23 +143,23 @@ class invalidLabelsTest extends UnitTestCase{
 		$this->assertTrue($this->pe instanceof PersistenceEngine,
 		  "legal string resource label should have returned instance of PersistenceEngine!");
 		$this->pe->clear();
-        $r = $this->bulkTestRecordLabelMethods("some_label", $this->validRecLabelExpect);
-        $this->assertTrue($r == 0, "$r issues found testing with label = STRING");
-		
+		$r = $this->bulkTestRecordLabelMethods("some_label", $this->validRecLabelExpect);
+		$this->assertTrue($r == 0, "$r issues found testing with label = STRING");
+
 		$this->pe = Tephlon::getResource(0);
 		$this->assertTrue($this->pe instanceof PersistenceEngine,
 		  "legal Numeric resource label should have returned instance of PersistenceEngine!");
 		$this->pe->clear();
 		$r = $this->bulkTestRecordLabelMethods("some_label", $this->validRecLabelExpect);
-        $this->assertTrue($r == 0, "$r issues found testing with label = INT (0)");
-		
+		$this->assertTrue($r == 0, "$r issues found testing with label = INT (0)");
+
 		$this->pe = Tephlon::getResource(1);
 		$this->assertTrue($this->pe instanceof PersistenceEngine,
 		  "legal Numeric resource label should have returned instance of PersistenceEngine!");
 		$this->pe->clear();
 		$r = $this->bulkTestRecordLabelMethods("some_label", $this->validRecLabelExpect);
-        $this->assertTrue($r == 0, "$r issues found testing with label = INT (1)");
-		
+		$this->assertTrue($r == 0, "$r issues found testing with label = INT (1)");
+
 	}
 	function bulkTestRecordLabelMethods($labelToTest, $expected_return){
 		$r = array();
@@ -194,5 +194,47 @@ class invalidLabelsTest extends UnitTestCase{
 		$this->assertTrue($r == 0, "$r issues found testing wrong char record labels");
 		$r = $this->bulkTestRecordLabelMethods("\wrongChar", $this->invalidRecLabelExpect);
 		$this->assertTrue($r == 0, "$r issues found testing wrong char record labels");
+	}
+}
+
+class testGetLastModified extends UnitTestCase{
+	function testLastModifiedCreationTime(){
+		$this->pe = Tephlon::getResource($this);
+		$this->pe->register("BLABLA","label",0);
+		$cdate = time();
+		sleep(2);
+		$r = $this->pe->getLastModified("label");
+		$isAttendable = ($r - $cdate) < 2 ? true : false;
+		$this->assertTrue($isAttendable, "Problem w/ getLastModified".
+		": record created at $cdate, function returned $r ");
+	}
+	function testLastModifiedEditTime(){
+		$this->pe = Tephlon::getResource($this);
+		$this->pe->register("BLABLA","label2",0);
+		$ctime = time();
+		sleep(2);
+		$this->pe->register("BLABLABLA","label2",0);
+        $etime = $this->pe->getLastModified("label2");
+		sleep(2);
+		$r = $this->pe->getLastModified("label2");
+		$isAttendable = true;
+		$failedConditions = "";
+		// 1. Edit time is bigger than creation time
+		$isAttendable &= $ctime < $etime;
+		if(!$isAttendable){
+			$failedConditions .= "1 ";
+		}
+		// 2. Edit time stays the same when I request it after 2 sec
+		$isAttendable &= $etime == $r;
+		if(!$isAttendable){
+			$failedConditions .= "2 ";
+		}
+		// 3. Lately requested Edit time is in the past.
+		$isAttendable &= $r < time();
+		if(!$isAttendable){
+			$failedConditions .= "3 ";
+		}
+		$this->assertTrue($isAttendable, "Did not pass conditions: ".
+		 "$failedConditions  - ctime: $ctime, etime: $etime, latelyReqEditTime (r): $r");
 	}
 }

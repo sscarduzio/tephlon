@@ -185,4 +185,10 @@ class FileResource extends PersistenceEngine {
 		}
 		return $out;
 	}
+	function doGetLastModified($key){
+		if($this->doExists($key)){
+			return filemtime($this->key2filepath($key));
+		}
+		return false;
+	}
 }

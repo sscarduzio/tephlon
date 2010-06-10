@@ -238,5 +238,14 @@ class PersistenceEngine {
        }
        $m = new Mutex($this->label2key($this->getContext().$label));
        $m->unlock();
+       return true;
+    }
+    
+    /**
+     * Gets the timestamp (epoch format) of when the record was modified
+     * last time. 
+     */
+    public function getLastModified($label){
+    	return $this->doGetLastModified($this->label2key($label));
     }
 }
