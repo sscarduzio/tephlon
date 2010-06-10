@@ -49,19 +49,26 @@ class FileResource extends PersistenceEngine {
 	}
 	private function cleanStaleFiles($path){
 		$fileList = glob($path."/*".$this->cache_suffix);
+		$allOk = true;
 		foreach ($fileList as $file_path){
-			//xyz.txt
-			$file_name = basename ($file_path);
 			// Delete stale records
-			$the_record = unserialize(file_get_contents($file_path));
+
+			//$content = file_get_contents($file_path);
+			$key = $this->filepath2key($file_path);
+			$the_record = $this->doRetrieve($this->filepath2key($key));
 			if(!$the_record){
-				dlog("ERROR: cleanStaleFiles($path): unable to read $file_path",DEBUG);
+				dlog("cleanStaleFiles($path) got no record out of $file_path", DEBUG);
+				// File was empty or access denied, try to delete in case it's just empty
+				unlink($file_path);
+				$allOk = false;
+				continue;
 			}
 			if($the_record->isStale()){
 				dlog("Self Maintainance: Removing stale".realpath($file_path), DEBUG);
 				unlink($file_path);
 			}
-		}
+		} // End foreach
+		return $allOk;
 	}
 
 	protected function doClear(){
@@ -75,7 +82,7 @@ class FileResource extends PersistenceEngine {
 		}
 		return $this->cache_path;
 	}
-	 
+
 	private function deleteDirTree($dir, $delete_root=false) {
 		$status = true;
 		if(!file_exists($dir)){
