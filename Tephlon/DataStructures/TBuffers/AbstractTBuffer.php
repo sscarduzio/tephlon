@@ -13,8 +13,8 @@ require_once(dirname(__FILE__).'/../TephlonType.php');
 abstract class AbstractTBuffer extends TephlonType{
     private $tbufferSize = 0;
 
-    public function __construct(){
-        parent::__construct($this);
+    public function __construct($that){
+        parent::__construct($that);
     }
 
     /**

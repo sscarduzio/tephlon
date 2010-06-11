@@ -8,6 +8,8 @@ require_once("config/tephlon_config.php");
 require_once("lib/Logger.php");
 require_once("lib/FileResource.php");
 require_once("DataStructures/TMap.php");
+require_once("DataStructures/TBuffers/TBuffer_FIFO.php");
+require_once("DataStructures/TBuffers/TBuffer_LIFO.php");
 
 class Tephlon {
 	/**

@@ -1,5 +1,5 @@
 <?php
-require_once("../../Tephlon.php");
+require_once("BillBoard.php");
 
 
 $bb = new BillBoard();
