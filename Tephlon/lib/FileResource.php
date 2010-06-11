@@ -92,12 +92,15 @@ class FileResource extends PersistenceEngine {
 		$iterator = new RecursiveDirectoryIterator($dir);
 		foreach (new RecursiveIteratorIterator($iterator, RecursiveIteratorIterator::CHILD_FIRST) as $file)
 		{
-			if ($file->isDir()) {
-				$r = rmdir($file->getPathname());
-			} else {
-				$r = unlink($file->getPathname());
-			}
-			$status &= $r;
+			if($file->getBaseName() == '..' || $file->getBaseName() == '.'){
+                continue; // Do nothing
+            }
+            else if ($file->isDir()) {
+                $r = rmdir($file->getPathname());
+            } else {
+                $r = unlink($file->getPathname());
+            }
+            $status &= $r;
 		}
 		// We dont want to delete the main resource's dir.
 		if($delete_root){
