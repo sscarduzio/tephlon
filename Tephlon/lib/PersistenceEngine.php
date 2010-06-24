@@ -248,4 +248,12 @@ class PersistenceEngine {
     public function getLastModified($label){
     	return $this->doGetLastModified($this->label2key($label));
     }
+    
+    /**
+     * Gets the timestamp (epoch format) of when the record was accessed
+     * last time. 
+     */
+    public function getLastAccessed($label){
+    	return $this->doGetLastModified($this->label2key($label));
+    }
 }

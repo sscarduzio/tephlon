@@ -194,4 +194,9 @@ class FileResource extends PersistenceEngine {
 		}
 		return false;
 	}
+	function doGetLastAccessed($key){
+	if($this->doExists($key)){
+            return fileatime($this->key2filepath($key));
+        }
+	}
 }
