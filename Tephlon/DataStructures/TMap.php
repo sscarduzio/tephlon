@@ -17,7 +17,7 @@
  Copies all of the mappings from the specified map to this map These mappings will replace any mappings that this map had for any of the keys currently in the specified map.
 
  */
-require_once("TephlonType.php");
+require_once(dirname(__FILE__)."/TephlonType.php");
 
 class TMap extends TephlonType{
 	private $map = array();
