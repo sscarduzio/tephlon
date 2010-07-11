@@ -1,0 +1,37 @@
+Tephlon v1.1 ================
+
+Author: Simone Scarduzio :: scarduzio[at]gmail.com
+Website: http://code.google.com/p/tephlon/
+
+=== About Tephlon 
+Tephlon is a multi-driver (for now just file cache) PHP library that adds a persistence 
+layer to your PHP objects, arrays or variables.
+It's mainly file based, but adding a new driver for other kind of internal/external 
+storage is really simple.
+
+It is also very easy to integrate as an external library in popular PHP frameworks 
+like Codeigniter. Please visit Tephlon home page to see examples and documentation
+about this topic.
+
+=== Anatomy 
+Tephlon is composed of two parts:
+* Tephlon Core: the real key-value multidriver storage engine
+* Tephlon DS: a set of ready data structures (TMap, TBuffer, TCounter, etc) built on
+top of Tephlon Core and ready to be extended by your application specific data models.
+
+=== Tephlon core feature list
+- Key-Value full serialization to file storage
+- Generic atomic operations (synchronization on a Record)
+- Specify a default lifetime (for each Resource)
+- Specify a lifetime (for each Record)
+
+=== Tephlon DS (data structures)
+- TMap: Resambles Java Map interface
+- TBuffer_FIFO/TBuffer_LIFO: TBuffer contains a time-ordered list of values 
+  (not key-values as in TMap).
+  It also let you specify the maximum size of the buffer, so that if you insert
+  the size+1'th element, the buffer will discard the oldest (FIFO) or the newest
+  (LIFO).
+ - TCounter: A simple synchronized counter. For example you can make a concurrency
+   free page visit counter with this.
+   
