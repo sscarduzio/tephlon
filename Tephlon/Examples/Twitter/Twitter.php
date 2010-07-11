@@ -1,5 +1,6 @@
 <?php
-require_once("UserBoard.php");
+require_once("../common/UserBoard.php");
+require_once('Flow.php');
 
 // Setup a new user
 $u1 = new User(uniqid('user_'),"dummypass");

@@ -2,12 +2,12 @@
 require_once("../../Tephlon.php");
 require_once("Line.php");
 
-class BillBoard {
+class ChatStream {
 	private $buf = null;
 	public function __construct(){
 		$this->buf = new TBuffer_FIFO($this);
 		// We will keep just the 30 newest lines
-		$this->buf->setTbufferSize(30);
+		$this->buf->setTbufferSize(15);
 	}
 	private function validateLine($line){
 		if($line instanceof Line){

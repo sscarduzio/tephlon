@@ -38,10 +38,6 @@ class UserBoard {
 			print("won't delete ".$user->getID().", user not found.");
 			return;
 		}
-		// Clean statuses of this user
-        $myflow = new Flow($user->getID());
-        $myflow->clear();
-		$this->users->remove($user->getID());
 	}
 	public function getAll(){
 		return $this->users->values();
