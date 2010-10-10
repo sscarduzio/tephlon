@@ -1,0 +1,35 @@
+<project name="cache_housekeeper" default="clean" basedir=".">
+    <property name="cache" value="cache/"/>
+    <target name="CopySite"> 
+      
+        <copy todir= "${IIS Virtual Directory}">
+            <fileset dir=".">
+                <include name="**/*.php"/>
+                <include name="**/*.html"/>
+                <include name="**/*.txt"/>
+                <include name="**/*.css"/>
+                <include name="**/*.js"/>
+                <include name="**/*.gif"/>
+                <include name="**/fruitdbbackup.sql"/>
+                <include name="**/*.zip"/> 
+            </fileset>
+        </copy>
+    </target>
+	
+	<!-- ================================= 
+          target: setup              
+         ================================= -->
+    <target name="setup" description="description">
+        <mkdir dir="${cache}"/>
+    </target>
+
+	<!-- ================================= 
+          target: clean              
+         ================================= -->
+    <target name="clean" description="description">  
+    	<echo>Initializing Cache Housekeeper</echo>
+        <echo>assuming cache dir: ${cache}</echo>
+        <delete dir="${cache}"/>
+    </target>
+
+</project>
