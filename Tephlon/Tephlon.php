@@ -4,9 +4,12 @@ define("DEBUG", 3);
 define("INFO", 2);
 define("ERROR", 1);
 
+define("CONN_STR", "_TephlonSQLConnectionString");
+
 require_once("config/tephlon_config.php");
 require_once("lib/Logger.php");
 require_once("lib/FileResource.php");
+require_once("lib/SQLResource.php");
 require_once("DataStructures/TMap.php");
 require_once("DataStructures/TBuffers/TBuffer_FIFO.php");
 require_once("DataStructures/TCounter.php");
@@ -29,21 +32,23 @@ class Tephlon {
 	 * @return FileResource or false, if problems were detected in the namesapce string
 	 * or if something went wrong creating/retrieving the resource itself.
 	 */
-	public static function getResource($namespace = null, $driverName="File"){
+	public static function getResource($namespace = null, $driverName="sqlDrv1"){
 		$ctx = self::extractContext($namespace);
 		if($ctx === false){
 			dlog("Can't create this resource", ERROR);
 			return false;
 		}
-		// List of available drivers
+
 		if($driverName == "File"){
-			$r = new FileResource($ctx);
+			return new FileResource($ctx);
 		}
-		else{
-			dlog("Driver $driverName not found", ERROR);
-			return false;
+		if(defined($driverName.CONN_STR)){
+			$connectionString = constant($driverName.CONN_STR);
+			dlog("Found connection string: ".$connectionString, DEBUG);
+			return new SQLResource($ctx, $connectionString);
 		}
-		return $r;
+		dlog("Driver $driverName not found", ERROR);
+		return false;
 	}
 
 	private static function extractContext($label){
@@ -51,7 +56,7 @@ class Tephlon {
 			return "_global_context_";
 		}
 		if(is_object($label)){
-			$label = get_class($label).".".sha1(serialize($label));
+			$label = get_class($label).sha1(serialize($label));
 			return $label;
 		}
 		if(PersistenceEngine::validateContext($label)){
