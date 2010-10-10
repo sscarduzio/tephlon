@@ -10,11 +10,16 @@
 require_once("Record.php");
 require_once("Mutex/Mutex.class.php");
 
-class PersistenceEngine {
-	private static $instance;
+abstract class PersistenceEngine {
 	protected $context;
 	protected static $stale_age = DEFAULT_STALE_AGE;
-
+    
+	protected function __construct($context){
+        if($this->setContext($context) === false){
+            $this->context = false;
+        }
+    }
+	
 	protected function setContext($ctx){
 		if($this->context != $ctx){
 			if($this->context == null){
@@ -27,6 +32,7 @@ class PersistenceEngine {
 			return $this->doSetContext($ctx);
 		}
 	}
+	abstract protected function doSetContext($ctx);
 
 	/**
 	 * Returns the namespace of this resource
@@ -44,6 +50,7 @@ class PersistenceEngine {
 	public function clear(){
 		return $this->doClear();
 	}
+	abstract protected function doClear();
 
 	/**
 	 * Set the desired lifetime in seconds for a record before it's considered
@@ -111,6 +118,7 @@ class PersistenceEngine {
 		}
 		return null;
 	}
+	abstract protected function doRetrieve($key);
 
 	private function validateName($label){
 		if($label === null){
@@ -173,6 +181,7 @@ class PersistenceEngine {
 		}
 		return $key;
 	}
+	abstract protected function doRegister($record);
 
 	/**
 	 * Delete record by label or Record object
@@ -191,7 +200,7 @@ class PersistenceEngine {
 		$key = $this->label2key($label);
 		return $this->doDelete($key);
 	}
-
+    abstract protected function doDelete($key);
 	/**
 	 * Check if we have in storage a valid record for this label
 	 * @param unknown_type $label
@@ -204,13 +213,14 @@ class PersistenceEngine {
 		return $this->doExists($key);
 	}
 	
+	abstract protected function doExists($key);
 	/**
 	 * Returns an array of all labels of valid records
 	 */
 	public function getIndex(){
 		return $this->doGetIndex();
 	}
-	
+	abstract protected function doGetIndex();
 	/**
 	 * Start an atomic operation on a record
 	 * Important: use this just if you need atomic logic between read and write,
@@ -248,6 +258,7 @@ class PersistenceEngine {
     public function getLastModified($label){
     	return $this->doGetLastModified($this->label2key($label));
     }
+    abstract protected function doGetLastModified($key);
     
     /**
      * Gets the timestamp (epoch format) of when the record was accessed
@@ -256,4 +267,5 @@ class PersistenceEngine {
     public function getLastAccessed($label){
     	return $this->doGetLastModified($this->label2key($label));
     }
+    abstract protected function doGetLastAccessed($key);
 }

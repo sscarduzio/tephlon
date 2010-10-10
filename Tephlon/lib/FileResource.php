@@ -16,9 +16,7 @@ class FileResource extends PersistenceEngine {
 	private $cache_suffix = "ser";
 
 	public function __construct($context){
-		if($this->setContext($context) === false){
-			$this->context = false;
-		}
+		parent::__construct($context);
 	}
 
 	/**
