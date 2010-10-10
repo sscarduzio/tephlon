@@ -77,6 +77,9 @@ class TMap extends TephlonType{
      */
 	public function isEmpty(){
 		$map = $this->tr->getIndex();
+		if(!is_array($map)){
+			dlog("Array expected from getIndex()",ERROR);
+		}
 		foreach($map as $k){
 			return false;
 		}
@@ -123,6 +126,10 @@ class TMap extends TephlonType{
 	public function values(){
 		$map = $this->tr->getIndex();
 		$v = array();
+		if(!is_array($map)){
+			dlog('Impossible to get index from resource', ERROR);
+			return false;
+		}
 		foreach($map as $key){
 			$val = $this->get($key);
 			if(!is_null($val)){
