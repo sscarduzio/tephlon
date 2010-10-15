@@ -11,11 +11,12 @@ abstract class DBConnector {
 	protected $db = null;
 
 	protected function createStatements($ctx){
-		
+
 		$this->stm['before_create'] = '';
 		// Insert
 		// ? = Key
 		// ? = Value
+		// ? = expire_time
 		$this->stm['insert'] = "INSERT INTO $ctx (`key`, `payload`)".
             " VALUES (? ,?);";
 
@@ -25,10 +26,10 @@ abstract class DBConnector {
 
 		// Count
 		$this->stm['count'] = "SELECT COUNT( * ) FROM $ctx";
-        
+
 		// Index
 		$this->stm['index'] = "SELECT `key` FROM $ctx";
-        
+
 		// Drop
 		$this->stm['drop'] = "DROP TABLE IF EXISTS $ctx";
 
@@ -37,12 +38,14 @@ abstract class DBConnector {
 
 		// Select
 		// ? = key
-		$this->stm['select'] = "SELECT * FROM $ctx WHERE `key` = ?";
+		// ? = now
+		$this->stm['select'] = "SELECT * FROM $ctx ".
+		"WHERE `key` = ? AND (`expire_time` > ?  OR `expire_time` = 0);";
 
 		// Update
 		// ? = payload
 		// ? = key
-		$this->stm['update'] = "UPDATE $ctx SET `payload` = ? WHERE `key` = ?";
+		$this->stm['update'] = "UPDATE $ctx SET `payload` = ? WHERE `key` = ? ;";
 
 		// Hook for subclasses to modify the uncompiled statements
 		$this->overrideStatements();
@@ -66,7 +69,7 @@ abstract class DBConnector {
 
 	public static function getConnector($ctx, $connectionString){
 		$db = &ADONewConnection($connectionString);
-		$db->debug = true;
+		$db->debug = false;
 		if(!is_null($db) && $db->IsConnected() ){
 			dlog("Detected DB type: ".$db->databaseType, DEBUG);
 			switch ($db->databaseType) {
@@ -85,11 +88,16 @@ abstract class DBConnector {
 		$this->db = $db;
 		$this->createStatements($ctx);
 	}
+
+	/*************************************
+	 * Wrap all sql functions
+	 ************************************/
+
 	function createTable($ctx){
 		$create  =
         'CREATE TABLE IF NOT EXISTS '.$ctx.' ('.
         '`key` VARCHAR( 60 ) NOT NULL ,'.
-        '`created` TIMESTAMP ON UPDATE CURRENT_TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ,'.
+        '`expire_time` int NOT NULL DEFAULT 0 ,'.
         '`payload` TEXT NULL ,PRIMARY KEY (  `key` ));';
 
 		if(strlen($this->stm['before_create']) > 0 ){
@@ -110,12 +118,9 @@ abstract class DBConnector {
 	function index(){
 		$this->db->SetFetchMode(ADODB_FETCH_NUM);
 		$rs = $this->db->Execute($this->stm['index']);
-		//$rs = new ADORecordSet_mysql(1,1);
-		
-		return ($rs instanceof ADORecordSet) && is_array($rs->fields) 
-		          ? $rs->getAll() 
-		          : array();
-		
+		return ($rs instanceof ADORecordSet) && is_array($rs->fields)
+		? $rs->getAll()
+		: array();
 	}
 	function drop(){
 		$res = $this->db->Execute($this->stm['drop']);
@@ -123,12 +128,12 @@ abstract class DBConnector {
 	}
 	function  truncate(){
 		$res = $this->db->Execute($this->stm['truncate']);
-        return $res instanceof ADORecordSet_empty;
+		return $res instanceof ADORecordSet_empty;
 	}
 	function select($key){
 		$this->db->SetFetchMode(ADODB_FETCH_ASSOC);
 
-		$rs = $this->db->execute($this->stm['select'],$key);
+		$rs = $this->db->execute($this->stm['select'],array($key, time()));
 		if($rs instanceof ADORecordSet){
 			return $rs->fields;
 		}
@@ -138,19 +143,21 @@ abstract class DBConnector {
 	function insert($record){
 		// Construct data
 		$data = array('key' => $record->getKey(),
-		              'payload' => $record->getContent());
+		              'payload' => $record->getContent(),
+		              'expires' =>$record->getExpireTime());
 
 		// See if we have it, then update it
 		$this->db->SetFetchMode(ADODB_FETCH_ASSOC);
-		$rs = $this->db->execute($this->stm['select'], $record->getKey());
-		if($rs instanceof ADORecordSet){
-			$this->db->execute($this->stm['update'],
-			array($record->getContent(),
-			$record->getKey()));
+		$rs = $this->select($record->getKey());
+		if($rs){
+			return $this->db->execute($this->stm['update'],
+			array($record->getContent(), $record->getKey()));
 		}
 		// Otherwise Insert it
 		$rs = $this->db->execute($this->stm['insert'], $data);
-		return $rs;
+		if($rs !== false){
+			return $record->getKey();
+		}
 	}
 
 }

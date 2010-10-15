@@ -163,7 +163,10 @@ abstract class PersistenceEngine {
 	 * @param String $label The label for retrieving it in future
 	 * @param int $expire_in_seconds Optional custom per-record lifetime
 	 */
-	public function register($object, $label, $expire_in_seconds = DEFAULT_STALE_AGE){
+	public function register($object, $label, $expire_in_seconds = -1){
+		if( $expire_in_seconds < 0){
+			$expire_in_seconds = $this->getLifetime();
+		}
 		if(!$this->validateName($label)){
 			return null;
 		}

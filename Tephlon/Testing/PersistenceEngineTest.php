@@ -17,14 +17,12 @@ class PersistenceEngineBasicTest extends UnitTestCase {
 		// Get rid of test records pretty soon, please
 		$this->pe->setLifetime(10);
 		$this->assertIsA($this->pe,"PersistenceEngine");
-		$this->assertIsA($this->pe,"FileResource");
 	}
 	function testGlobalContextInitialization(){
 		$this->pe = Tephlon::getResource();
 		// Get rid of test records pretty soon, please
 		$this->pe->setLifetime(10);
 		$this->assertIsA($this->pe,"PersistenceEngine");
-		$this->assertIsA($this->pe,"FileResource");
 	}
 	function testRegisterRetrieveInSameContext(){
 		//$this->clear();
@@ -63,7 +61,8 @@ class PersistenceEngineKeyCollisionTest extends UnitTestCase{
 		// The retrieve now is called from a different trace context
 		echo "Trying to fetch (different context) ".$this->testLabel."\n";
 		$result = $this->pe->retrieve($this->testLabel);
-		$this->assertNull($result,"Not null was retrieved for previously registered label");
+		$this->assertNull($result,"Not null was retrieved for previously registered label $this->testLabel (now is:".time().").");
+		$x = "lOL";
 	}
 }
 class PersistenceEngineCRUDTest extends UnitTestCase{

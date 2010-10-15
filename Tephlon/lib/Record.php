@@ -38,6 +38,9 @@ class Record {
 	public function getContent(){
 		return $this->content;
 	}
+	public function getExpireTime(){
+		return is_int($this->willExpireAt) ? $this->willExpireAt : 0;
+	}
 	public function updateContent($content){
 		$this->content = $content;
 		$this->resetAge();

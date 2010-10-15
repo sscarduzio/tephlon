@@ -56,7 +56,7 @@ class Tephlon {
 			return "_global_context_";
 		}
 		if(is_object($label)){
-			$label = get_class($label).sha1(serialize($label));
+			$label = sha1(serialize($label));
 			return $label;
 		}
 		if(PersistenceEngine::validateContext($label)){

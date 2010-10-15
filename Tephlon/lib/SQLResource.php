@@ -8,7 +8,7 @@ require_once ("DBConnector.php");
  *
  */
 class SQLResource extends PersistenceEngine {
-	private static $dbc;
+	private $dbc;
 	
 	public function __construct($ctx, $connectionString){
 		parent::__construct($ctx);
@@ -35,7 +35,6 @@ class SQLResource extends PersistenceEngine {
 			foreach($r as $n => $val){
 				$r[$n]=$val[0];
 			}
-			dlog("ECCO".print_r($r),ERROR);
 			return $r;
 	}
    
@@ -48,9 +47,9 @@ class SQLResource extends PersistenceEngine {
 	}
 
 	protected function doRegister($record){
-			$rs =  $this->dbc->insert($record);
-			if($rs instanceof ADORecordSet){
-				return $record->getKey();
+			$k =  $this->dbc->insert($record);
+			if($k !== false){
+				return $k;
 			}
 			return false;
 	}
