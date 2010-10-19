@@ -114,6 +114,7 @@ abstract class PersistenceEngine {
 		// Record would now be null just because found as stale!
 		if(!is_null($default) && !$record){
 			$this->register($default, $label);
+			// Automatic check-select-insert assignment (return the value)
 			return $default;
 		}
 		return null;

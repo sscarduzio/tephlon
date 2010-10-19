@@ -45,7 +45,7 @@ abstract class DBConnector {
 		// Update
 		// ? = payload
 		// ? = key
-		$this->stm['update'] = "UPDATE $ctx SET `payload` = ? WHERE `key` = ? ;";
+		$this->stm['update'] = "UPDATE $ctx SET `payload` = ? , `expire_time`=? WHERE `key` = ? ;";
 
 		// Hook for subclasses to modify the uncompiled statements
 		$this->overrideStatements();
@@ -144,14 +144,17 @@ abstract class DBConnector {
 		// Construct data
 		$data = array('key' => $record->getKey(),
 		              'payload' => $record->getContent(),
-		              'expires' =>$record->getExpireTime());
+		              'expire_time' =>$record->getExpireTime());
 
 		// See if we have it, then update it
 		$this->db->SetFetchMode(ADODB_FETCH_ASSOC);
 		$rs = $this->select($record->getKey());
 		if($rs){
-			return $this->db->execute($this->stm['update'],
-			array($record->getContent(), $record->getKey()));
+			return $this->db->execute($this->stm['update'], array(
+			$data['payload'],
+			$data['expire_time'],
+			$data['key']
+			));
 		}
 		// Otherwise Insert it
 		$rs = $this->db->execute($this->stm['insert'], $data);

@@ -14,6 +14,7 @@ class PersistenceEngineBasicTest extends UnitTestCase {
 
 	function testInitialization(){
 		$this->pe = Tephlon::getResource($this);
+		$this->pe->clear();
 		// Get rid of test records pretty soon, please
 		$this->pe->setLifetime(10);
 		$this->assertIsA($this->pe,"PersistenceEngine");
@@ -21,7 +22,7 @@ class PersistenceEngineBasicTest extends UnitTestCase {
 	function testGlobalContextInitialization(){
 		$this->pe = Tephlon::getResource();
 		// Get rid of test records pretty soon, please
-		$this->pe->setLifetime(10);
+		$this->pe->setLifetime(20);
 		$this->assertIsA($this->pe,"PersistenceEngine");
 	}
 	function testRegisterRetrieveInSameContext(){
@@ -61,7 +62,7 @@ class PersistenceEngineKeyCollisionTest extends UnitTestCase{
 		// The retrieve now is called from a different trace context
 		echo "Trying to fetch (different context) ".$this->testLabel."\n";
 		$result = $this->pe->retrieve($this->testLabel);
-		$this->assertNull($result,"Not null was retrieved for previously registered label $this->testLabel (now is:".time().").");
+		$this->assertNull($result,"Not null ($result) was retrieved for previously registered label $this->testLabel (now is:".time().").");
 		$x = "lOL";
 	}
 }
@@ -92,7 +93,7 @@ class PersistenceEngineCRUDTest extends UnitTestCase{
 	}
 	function testUpdate(){
 		$obj = $this->pe->retrieve($this->testLabel);
-		$this->assertNotNull($obj, "Could not retrieve record set in another method");
+		$this->assertNotNull($obj, "Unable to retrieve a record which was registered in another method");
 		$obj = $this->newTestString;
 
 		$this->pe->register($obj , $this->testLabel);

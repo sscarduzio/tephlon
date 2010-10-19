@@ -25,7 +25,7 @@ class SQLResource extends PersistenceEngine {
 	}
 
 	protected function doExists($key){
-	       return $this->dbc->select($key);		
+	       return  is_array($this->dbc->select($key));		
 	}
     static function arrToaVal($a){
         return $a[0];
@@ -49,7 +49,7 @@ class SQLResource extends PersistenceEngine {
 	protected function doRegister($record){
 			$k =  $this->dbc->insert($record);
 			if($k !== false){
-				return $k;
+				return $record->getKey();
 			}
 			return false;
 	}
