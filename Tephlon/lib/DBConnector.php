@@ -17,8 +17,8 @@ abstract class DBConnector {
 		// ? = Key
 		// ? = Value
 		// ? = willExpireAt
-		$this->stm['insert'] = "INSERT INTO `$ctx` (`key`,`willExpireAt`, `content`)".
-            " VALUES (? ,?, ?);";
+		$this->stm['insert'] = "INSERT INTO `$ctx` (`key`,`willExpireAt`,`content`, `lastModified`)".
+            " VALUES (? ,?, ?, ?);";
 
 		// Delete
 		// ? = Key
@@ -45,7 +45,9 @@ abstract class DBConnector {
 		// ? = content
 		// ? = key
 		$this->stm['update'] = "UPDATE `$ctx` SET `content` = ? , `willExpireAt`=? WHERE `key` = ? ;";
-
+        
+		// Remove stale records
+		$this->stm['purge'] = "DELETE FROM `$ctx` WHERE `willExpireAt` < ? AND `willExpireAt` <> 0 ";
 		// Hook for subclasses to modify the uncompiled statements
 		$this->overrideStatements();
 
@@ -97,6 +99,7 @@ abstract class DBConnector {
         'CREATE TABLE IF NOT EXISTS `'.$ctx.'` ('.
         '`key` VARCHAR( 60 ) NOT NULL ,'.
         '`willExpireAt` int NOT NULL DEFAULT 0 ,'.
+		'`lastModified` int NOT NULL DEFAULT 0, '.
         '`content` TEXT NULL ,PRIMARY KEY (  `key` ));';
 
 		if(strlen($this->stm['before_create']) > 0 ){
@@ -138,9 +141,16 @@ abstract class DBConnector {
 		}
 		return false;
 	}
-
+    // Delete all record whose willExpireAt != 0 and willExpireAt < time()
+	function purge(){
+		$this->db->execute($this->stm['purge'],time());
+	}
+	
+	
 	function insert($record){
-		$rs = $this->db->execute($this->stm['insert'], $record->toAssoc());
+		$data = $record->toAssoc();
+		$data['lastModified'] = time(); 
+		$rs = $this->db->execute($this->stm['insert'], $data);
 		if($rs !== false){
 			return $record->getKey();
 		}

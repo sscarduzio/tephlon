@@ -11,8 +11,8 @@ class SQLResource extends PersistenceEngine {
 	private $dbc;
 
 	public function __construct($ctx, $connectionString){
-		parent::__construct($ctx);
 		$this->dbc = DBConnector::getConnector($ctx,$connectionString);
+		parent::__construct($ctx);
 		$this->dbc->createTable($ctx);
 	}
 
@@ -39,12 +39,9 @@ class SQLResource extends PersistenceEngine {
 	}
 	 
 	protected function doGetLastAccessed($key){
-			
+			// Not implemented
 	}
 
-	protected function doGetLastModified($key){
-			
-	}
 	/**
 	 * Implement the select-delete-insert
 	 * This is in SQLResource because it's not generic, file resource
@@ -80,6 +77,15 @@ class SQLResource extends PersistenceEngine {
 	}
 
 	protected function doSetContext($ctx){
-		// Flush stale records with one SQL statement?
+		// Flush stale records with one SQL statement
+		$this->dbc->purge();
 	}
+	
+    protected function doGetLastModified($key){
+        $data = $this->dbc->select($key);
+        if(is_array($data)){
+            return $data['lastModified'];
+        }
+        return null;
+    }
 }
