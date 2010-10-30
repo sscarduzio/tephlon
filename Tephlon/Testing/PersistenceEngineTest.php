@@ -211,21 +211,21 @@ class testGetLastModified extends UnitTestCase{
 	function testLastModifiedEditTime(){
 		$this->pe = Tephlon::getResource($this);
 		$this->pe->register("BLABLA","label2",0);
-		$ctime = time();
+		$createTime = time();
 		sleep(2);
 		$this->pe->register("BLABLABLA","label2",0);
-        $etime = $this->pe->getLastModified("label2");
+        $editTime = $this->pe->getLastModified("label2");
 		sleep(2);
 		$r = $this->pe->getLastModified("label2");
 		$isAttendable = true;
 		$failedConditions = "";
 		// 1. Edit time is bigger than creation time
-		$isAttendable &= $ctime < $etime;
+		$isAttendable &= $createTime < $editTime;
 		if(!$isAttendable){
 			$failedConditions .= "1 ";
 		}
 		// 2. Edit time stays the same when I request it after 2 sec
-		$isAttendable &= $etime == $r;
+		$isAttendable &= $editTime == $r;
 		if(!$isAttendable){
 			$failedConditions .= "2 ";
 		}
@@ -235,6 +235,6 @@ class testGetLastModified extends UnitTestCase{
 			$failedConditions .= "3 ";
 		}
 		$this->assertTrue($isAttendable, "Did not pass conditions: ".
-		 "$failedConditions  - ctime: $ctime, etime: $etime, latelyReqEditTime (r): $r");
+		 "$failedConditions  - createTime: $createTime, editTime: $editTime, latelyReqEditTime (r): $r");
 	}
 }
