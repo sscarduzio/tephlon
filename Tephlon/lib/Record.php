@@ -45,6 +45,12 @@ class Record {
 		$this->content = $content;
 		$this->resetAge();
 	}
+	public function toAssoc(){
+		return array( 'key' => $this->key,
+		              'willExpireAt' => $this->willExpireAt,
+		              'content' => $this->content
+		);
+	}
 	public function isStale(){
 		if($this->willExpireAt == 0){
 			return false;
