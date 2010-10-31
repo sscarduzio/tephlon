@@ -161,6 +161,7 @@ class invalidLabelsTest extends UnitTestCase{
 		$this->assertTrue($r == 0, "$r issues found testing with label = INT (1)");
 
 	}
+	// To be called manually!!
 	function bulkTestRecordLabelMethods($labelToTest, $expected_return){
 		$r = array();
 		$failed = 0;
@@ -198,8 +199,12 @@ class invalidLabelsTest extends UnitTestCase{
 }
 
 class testGetLastModified extends UnitTestCase{
-	function testLastModifiedCreationTime(){
+	function __construct(){
+		parent::__construct();
 		$this->pe = Tephlon::getResource($this);
+		$this->pe->clear();
+	}
+	function testLastModifiedCreationTime(){
 		$this->pe->register("BLABLA","label",0);
 		$cdate = time();
 		sleep(2);
@@ -214,7 +219,7 @@ class testGetLastModified extends UnitTestCase{
 		$createTime = time();
 		sleep(2);
 		$this->pe->register("BLABLABLA","label2",0);
-        $editTime = $this->pe->getLastModified("label2");
+		$editTime = $this->pe->getLastModified("label2");
 		sleep(2);
 		$r = $this->pe->getLastModified("label2");
 		$isAttendable = true;
@@ -237,4 +242,39 @@ class testGetLastModified extends UnitTestCase{
 		$this->assertTrue($isAttendable, "Did not pass conditions: ".
 		 "$failedConditions  - createTime: $createTime, editTime: $editTime, latelyReqEditTime (r): $r");
 	}
+}
+class testIndex extends UnitTestCase{
+	function __construct(){
+		parent::__construct();
+		$this->pe = Tephlon::getResource($this);
+		$this->pe->clear();
+	}
+	private $pe = null;
+	function testEmptyIndex(){
+		$r = $this->pe->getIndex();
+		$this->assertTrue(is_array($r), "Index was not an array!");
+		$this->assertTrue(count($r) === 0, "Freshly created resource's index size was not INT 0. Found:".count($r));
+	}
+	function testSingleIndex(){
+		$this->pe->register($this, "this_class");
+		$r = $this->pe->getIndex();
+		$this->assertTrue(is_array($r), "Index was not an array!");
+		$this->assertTrue(count($r) === 1, "Registered one element, resource's index size was not INT 1. Found:".count($r));
+		$this->assertEqual($r[0], "this_class","The 0th element of Index array should be my label 'this class', but I found:".$r[0]);
+	}
+	function testMultiIndex(){
+		$this->pe->register($this, "this2");
+		$this->pe->register($this, "this3");
+		$this->pe->register($this, "this4");
+		$r = $this->pe->getIndex();
+		$this->assertTrue(is_array($r), "Index was not an array!");
+		$this->assertTrue(count($r) === 4, "Registered 4 elements, resource's index size was not INT 4. Found:".count($r));
+		$this->assertEqual($r[1], "this class","The 1st element of Index array should be my label 'this2', but I found:".$r[1]);
+		$this->assertEqual($r[2], "this class","The 2nd element of Index array should be my label 'this3', but I found:".$r[2]);
+	}
+	// Not really a test
+	function testCleanup(){
+		$this->pe->clear();
+	}
+
 }
