@@ -50,12 +50,15 @@ class SQLResource extends PersistenceEngine {
 	 * @param Record $record
 	 */
 	protected function doRegister($record){
+		$data = $record->toAssoc();
+		$data['lastModified'] = time();
+		$data['content'] = serialize($data['content']); 
 		// This already deletes the stale records from DB
 		$r = $this->doRetrieve($record->getKey());
 		if($r instanceof Record){
 			$this->doDelete($record->getKey());
 		}
-		$k =  $this->dbc->insert($record);
+		$k =  $this->dbc->insert($data);
 		if($k !== false){
 			return $record->getKey();
 		}
@@ -73,7 +76,7 @@ class SQLResource extends PersistenceEngine {
 		}
 		// Calculate the time to live
 		$ttl = $data['willExpireAt']-time();
-		return new Record($data['key'], $data['content'], $ttl);
+		return new Record($data['key'], unserialize($data['content']), $ttl);
 	}
 
 	protected function doSetContext($ctx){

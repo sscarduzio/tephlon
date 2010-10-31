@@ -45,7 +45,7 @@ abstract class DBConnector {
 		// ? = content
 		// ? = key
 		$this->stm['update'] = "UPDATE `$ctx` SET `content` = ? , `willExpireAt`=? WHERE `key` = ? ;";
-        
+
 		// Remove stale records
 		$this->stm['purge'] = "DELETE FROM `$ctx` WHERE `willExpireAt` < ? AND `willExpireAt` <> 0 ";
 		// Hook for subclasses to modify the uncompiled statements
@@ -115,7 +115,10 @@ abstract class DBConnector {
 	}
 	function count(){
 		$res = $this->db->Execute($this->stm['count']);
-		return $res;
+		if($res instanceof ADORecordSet){
+			return intval($res->fields[0]);
+		}
+		return null;
 	}
 	function index(){
 		$this->db->SetFetchMode(ADODB_FETCH_NUM);
@@ -141,19 +144,17 @@ abstract class DBConnector {
 		}
 		return false;
 	}
-    // Delete all record whose willExpireAt != 0 and willExpireAt < time()
+	// Delete all record whose willExpireAt != 0 and willExpireAt < time()
 	function purge(){
 		$this->db->execute($this->stm['purge'],time());
-	}
-	
-	
-	function insert($record){
-		$data = $record->toAssoc();
-		$data['lastModified'] = time(); 
-		$rs = $this->db->execute($this->stm['insert'], $data);
-		if($rs !== false){
-			return $record->getKey();
+		if($this->count() === 0){
+			$this->drop();
 		}
+	}
+
+	function insert($data){
+		$rs = $this->db->execute($this->stm['insert'], $data);
+		return $rs instanceof ADORecordSet_empty;
 	}
 
 }
