@@ -1,13 +1,22 @@
 <?php
 /* ************** Tephlon library configuration ***************************** */
 
-// The default lifetime of a record, 0 = forever
-define("DEFAULT_STALE_AGE", 0);
+/* On production system the Error level is recommended.
+ * Possible values are:
+ *
+ * LoggerLevel::ALL
+ * LoggerLevel::DEBUG
+ * LoggerLevel::ERROR 
+ */
+ define("AE_LOG_LEVEL", LoggerLevel::ALL);
 
-// Verbosity of logging. Values from more to less verbose: {DEBUG, INFO, ERROR}
-//define("LOG_VERBOSITY", INFO);
-define("LOG_VERBOSITY", ERROR);
+/*
+ * Timezone settings, refer to: http://php.net/manual/en/timezones.php
+ */
+ date_default_timezone_set("Europe/Helsinki");
 
+ // The default lifetime of a record, 0 = forever
+ define("DEFAULT_STALE_AGE", 0);
 
 
 /* ************************ File Driver ************************************* */

@@ -27,7 +27,7 @@ class FileResource extends PersistenceEngine {
 	 */
 	protected function doSetContext($ctx){
 		if(!is_string($this->cache_path) || $this->cache_path == ""){
-			dlog("File cache dir must be non empty string. Please set FILE_CACHE_DIR in tephlon_conf.php", ERROR);
+			$log->error("File cache dir must be non empty string. Please set FILE_CACHE_DIR in tephlon_conf.php");
 			return false;
 		}
 		if(!file_exists($this->cache_path)){
@@ -55,14 +55,14 @@ class FileResource extends PersistenceEngine {
 			$key = $this->filepath2key($file_path);
 			$the_record = $this->doRetrieve($this->filepath2key($key));
 			if(!$the_record){
-				dlog("cleanStaleFiles($path) got no record out of $file_path", DEBUG);
+				$log->debug("cleanStaleFiles($path) got no record out of $file_path");
 				// File was empty or access denied, try to delete in case it's just empty
 				unlink($file_path);
 				$allOk = false;
 				continue;
 			}
 			if($the_record->isStale()){
-				dlog("Self Maintainance: Removing stale".realpath($file_path), DEBUG);
+				$log->debug("Self Maintainance: Removing stale".realpath($file_path));
 				unlink($file_path);
 			}
 		} // End foreach
@@ -70,7 +70,7 @@ class FileResource extends PersistenceEngine {
 	}
 
 	protected function doClear(){
-		dlog("clear all records, wiping whole cache dir: ".$this->getCachePath(), INFO);
+		$log->info("clear all records, wiping whole cache dir: ".$this->getCachePath());
 		return $this->deleteDirTree($this->getCachePath());
 	}
 
@@ -84,7 +84,7 @@ class FileResource extends PersistenceEngine {
 	private function deleteDirTree($dir, $delete_root=false) {
 		$status = true;
 		if(!file_exists($dir)){
-			dlog("delete dir tree: dir not found $dir",INFO);
+			$log->info("delete dir tree: dir not found $dir");
 			return true;
 		}
 		$iterator = new RecursiveDirectoryIterator($dir);
@@ -124,7 +124,7 @@ class FileResource extends PersistenceEngine {
 		}
 		// Mutex lock for writes
 		if(!file_put_contents($file_path, serialize($record), LOCK_EX)){
-			dlog("Unable to write record to file: ".$key, ERROR);
+			$log->error("Unable to write record to file: ".$key);
 			return false;
 		}
 		return true;

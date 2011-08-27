@@ -1,13 +1,9 @@
 <?php
 
-define("DEBUG", 3);
-define("INFO", 2);
-define("ERROR", 1);
-
 define("CONN_STR", "_TephlonSQLConnectionString");
 
 require_once("config/tephlon_config.php");
-require_once("lib/Logger.php");
+require_once("lib/log/AELogger.php");
 require_once("lib/FileResource.php");
 require_once("lib/SQLResource.php");
 require_once("DataStructures/TMap.php");
@@ -35,7 +31,7 @@ class Tephlon {
 	public static function getResource($namespace = null, $driverName="sqlDrv1"){
 		$ctx = self::extractContext($namespace);
 		if($ctx === false){
-			dlog("Can't create this resource", ERROR);
+			$log->error("Can't create this resource");
 			return false;
 		}
 
@@ -44,10 +40,10 @@ class Tephlon {
 		}
 		if(defined($driverName.CONN_STR)){
 			$connectionString = constant($driverName.CONN_STR);
-			dlog("Found connection string: ".$connectionString, DEBUG);
+			$log->debug("Found connection string: ".$connectionString);
 			return new SQLResource($ctx, $connectionString);
 		}
-		dlog("Driver $driverName not found", ERROR);
+		$log->error("Driver $driverName not found");
 		return false;
 	}
 
@@ -64,23 +60,4 @@ class Tephlon {
 		}
 		return false;
 	}
-}
-
-/******************** Procedural Practicalities.. **************************/
-
-/**
- *  Logging is more practical to access from global scope
- *   better to call dlog() than $something->dlog(), right?
- */
-function dlog($msg, $ll = INFO){
-	$l = Logger::getInstance();
-	$l->dlog($msg, $ll);
-}
-
-/**
- * First log line, to show when we initialized the library.
- */
-date_default_timezone_set("EET");
-if(LOG_VERBOSITY > 1){
-	print("*** Tephlon init: ".date("D, d M Y @ h:i:s")."\n");
 }

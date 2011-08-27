@@ -94,7 +94,7 @@ abstract class PersistenceEngine {
 	 */
 	public function retrieve($label, $default=null){
 		if($label == null){
-			dlog("retrieve: null label, returning null", INFO);
+			$log->info("retrieve: null label, returning null");
 			return null;
 		}
 		if(!$this->validateName($label)){
@@ -123,20 +123,20 @@ abstract class PersistenceEngine {
 
 	private function validateName($label){
 		if($label === null){
-			dlog("Name was null, invalid name.",ERROR);
+			$log->error("Name was null, invalid name.");
 			return false;
 		}
 		//if(is_numeric($label))
 		$len = strlen($label);
 		if($len > 200 || $len < 1){
-			dlog("Invalid name length: ".strlen($label), ERROR);
+			$log->error("Invalid name length: ".strlen($label));
 			return false;
 		}
 		if(is_string($label)){
 			$badchars = array(' ', '\\', '/', ':', '*', '?', '"', '<', '>', '|');
 			foreach ( $badchars as $bc){
 				if( is_numeric(strpos( $label, $bc )) ){
-					dlog("Invalid character found in name: ".$bc, ERROR);
+					$log->error("Invalid character found in name: ".$bc);
 					return false;
 				}
 			}
@@ -172,7 +172,7 @@ abstract class PersistenceEngine {
 			return null;
 		}
 		if(is_null($object)){
-			dlog("Registering null object, skipping writing.", WARNING);
+			$log->warning("Registering null object, skipping writing.");
 			// Returning true because it's not unsuccessful, we anyway return null
 			// if we can't retrieve a label, and that will be the null he registered.
 			return true;
@@ -234,7 +234,7 @@ abstract class PersistenceEngine {
 	 */
     public function atomicBegin($label){
        if(!$this->exists($label)){
-        dlog("Trying to get Mutex for a record whose label does not exist", ERROR);
+      	$log->error("Trying to get Mutex for a record whose label does not exist");
         return false;
        }
        $m = new Mutex($this->label2key($this->getContext().$label));
@@ -247,7 +247,7 @@ abstract class PersistenceEngine {
      */
     public function atomicEnd($label){
        if(!$this->exists($label)){
-        dlog("Trying to release Mutex for a record whose label does not exist", ERROR);
+        $log->error("Trying to release Mutex for a record whose label does not exist");
         return false;
        }
        $m = new Mutex($this->label2key($this->getContext().$label));
