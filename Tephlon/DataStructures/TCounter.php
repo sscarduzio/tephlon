@@ -29,7 +29,7 @@ class TCounter extends TephlonType {
 			$n = 1;
 		}
 		if(!is_int($n)){
-			dlog("Can't increment of a non integer value", ERROR);
+			self::$log->error("Can't increment of a non integer value");
 			return false;
 		}
 		$x = $this->tr->retrieve("ctr", 0);

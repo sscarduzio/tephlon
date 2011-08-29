@@ -1,6 +1,7 @@
 <?php
-require_once("adodb5/adodb.inc.php");
-require_once("MySQLConnector.php");
+require_once(BASE_PATH . "/lib/adodb5/adodb.inc.php");
+require_once(BASE_PATH . "/lib/MySQLConnector.php");
+
 /**
  * Generic SQL DB Connector
  * @author Simone

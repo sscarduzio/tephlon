@@ -14,11 +14,12 @@ require_once(dirname(__FILE__)."/../Tephlon.php");
 class TephlonType {
 	protected $tephlon_lifetime = DEFAULT_STALE_AGE;
 	protected $tr = null;
+	public static $log;
 
 	protected function __construct($that){
 		$this->tr = Tephlon::getResource($that);
 		if(! ($this->tr instanceof PersistenceEngine) ){
-			dlog("Tephlon resource did not initialize  correctly", ERROR);
+			self::$log->error("Tephlon resource did not initialize  correctly");
 			return false;
 		}
 		return true;

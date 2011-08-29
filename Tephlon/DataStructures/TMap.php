@@ -34,7 +34,7 @@ class TMap extends TephlonType{
 	 */
 	public function put($mkey, $mval){
 		if(!strlen($mkey) > 0){
-			dlog("Key $mkey is invalid: ignoring..", DEBUG);
+			self::$log->debug("Key $mkey is invalid: ignoring..");
 			return false;
 		}
 		return $this->tr->register($mval, $mkey, $this->tephlon_lifetime);
@@ -55,11 +55,11 @@ class TMap extends TephlonType{
 	 */
 	public function remove($mkey){
 		if(!is_string($mkey)|| !strlen($mkey) > 0){
-			dlog("can't delete invalid map key, ignoring..", WARNING);
+			self::$log->warning("can't delete invalid map key, ignoring..");
 			return false;
 		}
 		if(!$this->tr->delete($mkey)){
-			dlog("key $mkey not found", INFO);
+			self::$log->info("key $mkey not found");
 			return false;
 		}
 		return true;
@@ -127,7 +127,7 @@ class TMap extends TephlonType{
 		$map = $this->tr->getIndex();
 		$v = array();
 		if(!is_array($map)){
-			dlog('Impossible to get index from resource', ERROR);
+			self::$log->error('Impossible to get index from resource');
 			return false;
 		}
 		foreach($map as $key){
@@ -136,7 +136,7 @@ class TMap extends TephlonType{
 				$v[] = $val;
 			}
             else {
-            	dlog("TMap.values: returned a null value for $key", DEBUG);
+            	self::$log->debug("TMap.values: returned a null value for $key");
             }
 		}
 		return $v;

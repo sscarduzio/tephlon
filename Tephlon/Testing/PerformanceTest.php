@@ -18,7 +18,7 @@ class PerformanceTest extends UnitTestCase {
 		for($i = 0; $i < $this->strSize ; $i++){
 			$this->testString = $this->testString."x";
 		}
-		dlog("String written",DEBUG);
+		self::$log->debug("String written");
 		$time_start = microtime(1);
 		for($i = 0; $i < $this->records ; $i++){
 			$res = $this->t->register($this->testString, $this->testLabel.$i, 1);

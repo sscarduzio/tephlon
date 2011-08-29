@@ -1,14 +1,17 @@
 <?php
-
+define('BASE_PATH',str_replace('\\','/',dirname(__FILE__)));
 define("CONN_STR", "_TephlonSQLConnectionString");
 
-require_once("config/tephlon_config.php");
-require_once("lib/log/AELogger.php");
-require_once("lib/FileResource.php");
-require_once("lib/SQLResource.php");
-require_once("DataStructures/TMap.php");
-require_once("DataStructures/TBuffers/TBuffer_FIFO.php");
-require_once("DataStructures/TCounter.php");
+
+require_once( BASE_PATH . "/lib/log/log4php/Logger.php");
+require_once( BASE_PATH . "/config/tephlon_config.php");
+date_default_timezone_set(TZONE);
+require_once( BASE_PATH . "/lib/log/AELogger.php");
+require_once( BASE_PATH . "/lib/FileResource.php");
+require_once( BASE_PATH . "/lib/SQLResource.php");
+require_once( BASE_PATH . "/DataStructures/TMap.php");
+require_once( BASE_PATH . "/DataStructures/TBuffers/TBuffer_FIFO.php");
+require_once( BASE_PATH . "/DataStructures/TCounter.php");
 
 class Tephlon {
 	/**
@@ -28,10 +31,13 @@ class Tephlon {
 	 * @return FileResource or false, if problems were detected in the namesapce string
 	 * or if something went wrong creating/retrieving the resource itself.
 	 */
-	public static function getResource($namespace = null, $driverName="sqlDrv1"){
+	
+	public static $log;
+	
+	public static function getResource($namespace = null, $driverName="File"){
 		$ctx = self::extractContext($namespace);
 		if($ctx === false){
-			$log->error("Can't create this resource");
+			self::$log->error("Can't create this resource");
 			return false;
 		}
 
@@ -40,7 +46,7 @@ class Tephlon {
 		}
 		if(defined($driverName.CONN_STR)){
 			$connectionString = constant($driverName.CONN_STR);
-			$log->debug("Found connection string: ".$connectionString);
+			self::$log->debug("Found connection string: ".$connectionString);
 			return new SQLResource($ctx, $connectionString);
 		}
 		$log->error("Driver $driverName not found");
@@ -61,3 +67,5 @@ class Tephlon {
 		return false;
 	}
 }
+
+initLogger();

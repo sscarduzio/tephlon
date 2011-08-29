@@ -2,9 +2,9 @@
 /**
  * Test class for generic PersistenceEngine
  */
-
+define('MY_BASE_PATH',str_replace('\\','/',dirname(__FILE__)));
 require_once('simpletest/autorun.php');
-require_once('../Tephlon.php');
+require_once(MY_BASE_PATH .'/../Tephlon.php');
 
 class PersistenceEngineBasicTest extends UnitTestCase {
 	public $pe = null;
@@ -269,8 +269,8 @@ class testIndex extends UnitTestCase{
 		$r = $this->pe->getIndex();
 		$this->assertTrue(is_array($r), "Index was not an array!");
 		$this->assertTrue(count($r) === 4, "Registered 4 elements, resource's index size was not INT 4. Found:".count($r));
-		$this->assertEqual($r[1], "this class","The 1st element of Index array should be my label 'this2', but I found:".$r[1]);
-		$this->assertEqual($r[2], "this class","The 2nd element of Index array should be my label 'this3', but I found:".$r[2]);
+		$this->assertEqual($r[1], "this2","The 1st element of Index array should be my label 'this2', but I found:".$r[1]);
+		$this->assertEqual($r[2], "this3","The 2nd element of Index array should be my label 'this3', but I found:".$r[2]);
 	}
 	// Not really a test
 	function testCleanup(){

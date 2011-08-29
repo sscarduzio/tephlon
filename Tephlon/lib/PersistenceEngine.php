@@ -7,10 +7,11 @@
  * perform low level CRUD, listing present keys and such basic stuff.
  */
 
-require_once("Record.php");
-require_once("Mutex/Mutex.class.php");
+require_once( BASE_PATH . "/lib/Record.php");
+require_once( BASE_PATH . "/lib/Mutex/Mutex.class.php");
 
 abstract class PersistenceEngine {
+	public static $log;
 	protected $context;
 	protected static $stale_age = DEFAULT_STALE_AGE;
     
@@ -23,10 +24,10 @@ abstract class PersistenceEngine {
 	protected function setContext($ctx){
 		if($this->context != $ctx){
 			if($this->context == null){
-				dlog("context init: $ctx", DEBUG);
+				self::$log->debug("context init: $ctx");
 			}
 			else{
-				dlog("context changed: $ctx", INFO);
+				self::$log->debug("context changed: $ctx");
 			}
 			$this->context = $ctx;
 			return $this->doSetContext($ctx);
@@ -94,7 +95,7 @@ abstract class PersistenceEngine {
 	 */
 	public function retrieve($label, $default=null){
 		if($label == null){
-			$log->info("retrieve: null label, returning null");
+			self::$log->debug("retrieve: null label, returning null");
 			return null;
 		}
 		if(!$this->validateName($label)){
@@ -123,20 +124,20 @@ abstract class PersistenceEngine {
 
 	private function validateName($label){
 		if($label === null){
-			$log->error("Name was null, invalid name.");
+			self::$log->error("Name was null, invalid name.");
 			return false;
 		}
 		//if(is_numeric($label))
 		$len = strlen($label);
 		if($len > 200 || $len < 1){
-			$log->error("Invalid name length: ".strlen($label));
+			self::$log->error("Invalid name length: ".strlen($label));
 			return false;
 		}
 		if(is_string($label)){
 			$badchars = array(' ', '\\', '/', ':', '*', '?', '"', '<', '>', '|');
 			foreach ( $badchars as $bc){
 				if( is_numeric(strpos( $label, $bc )) ){
-					$log->error("Invalid character found in name: ".$bc);
+					self::$log->error("Invalid character found in name: ".$bc);
 					return false;
 				}
 			}
@@ -172,7 +173,7 @@ abstract class PersistenceEngine {
 			return null;
 		}
 		if(is_null($object)){
-			$log->warning("Registering null object, skipping writing.");
+			self::$log->warning("Registering null object, skipping writing.");
 			// Returning true because it's not unsuccessful, we anyway return null
 			// if we can't retrieve a label, and that will be the null he registered.
 			return true;
@@ -234,7 +235,7 @@ abstract class PersistenceEngine {
 	 */
     public function atomicBegin($label){
        if(!$this->exists($label)){
-      	$log->error("Trying to get Mutex for a record whose label does not exist");
+      	self::$log->error("Trying to get Mutex for a record whose label does not exist");
         return false;
        }
        $m = new Mutex($this->label2key($this->getContext().$label));
@@ -247,7 +248,7 @@ abstract class PersistenceEngine {
      */
     public function atomicEnd($label){
        if(!$this->exists($label)){
-        $log->error("Trying to release Mutex for a record whose label does not exist");
+        self::$log->error("Trying to release Mutex for a record whose label does not exist");
         return false;
        }
        $m = new Mutex($this->label2key($this->getContext().$label));
