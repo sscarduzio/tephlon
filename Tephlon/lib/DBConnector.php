@@ -1,6 +1,5 @@
 <?php
 require_once(BASE_PATH . "/lib/adodb5/adodb.inc.php");
-require_once(BASE_PATH . "/lib/MySQLConnector.php");
 
 /**
  * Generic SQL DB Connector
@@ -10,7 +9,8 @@ require_once(BASE_PATH . "/lib/MySQLConnector.php");
 abstract class DBConnector {
 	protected $stm = array();
 	protected $db = null;
-
+	public static $log;
+	
 	protected function createStatements($ctx){
 
 		$this->stm['before_create'] = '';
@@ -66,27 +66,12 @@ abstract class DBConnector {
 		}
 		return false;
 	}
+	
 	// Override this
 	abstract function overrideStatements();
 
-	public static function getConnector($ctx, $connectionString){
-		$db = &ADONewConnection($connectionString);
-		$db->debug = true;
-		if(!is_null($db) && $db->IsConnected() ){
-			dlog("Detected DB type: ".$db->databaseType, DEBUG);
-			switch ($db->databaseType) {
-				case 'mysql' : $dbc =  new MySQLConnector($ctx, $db);
-				break;
-				//case 'oracle' : return new MySQLConnector($db);
-			}
-			return $dbc;
-		}
-		dlog("Could not connect to DB ($connStr)", ERROR );
-		return false;
-			
-	}
 	protected function __construct($ctx, $db){
-		dlog(get_class().": initializing.", INFO);
+		self::$log->info(get_class().": initializing.");
 		$this->db = $db;
 		$this->createStatements($ctx);
 	}

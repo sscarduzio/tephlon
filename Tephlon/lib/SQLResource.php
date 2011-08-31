@@ -1,7 +1,7 @@
 <?php
 
 require_once ("PersistenceEngine.php");
-require_once ("DBConnector.php");
+require_once ("DBCFactory.php");
 /**
  * Generic SQL driver
  * @author Simone
@@ -11,7 +11,7 @@ class SQLResource extends PersistenceEngine {
 	private $dbc;
 
 	public function __construct($ctx, $connectionString){
-		$this->dbc = DBConnector::getConnector($ctx,$connectionString);
+		$this->dbc = DBCFactory::getConnector($ctx,$connectionString);
 		parent::__construct($ctx);
 		$this->dbc->createTable($ctx);
 	}

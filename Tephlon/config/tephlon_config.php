@@ -25,6 +25,10 @@
 define("FILE_CACHE_DIR", "/tmp/cache/");
 
 
-/* ************************ SQL Driver ************************************ */
+/* ************************ SQL Drivers ************************************ */
 define("sqlDrv1".CONN_STR, "mysql://root:@localhost/tephlon");
-//define("sqlDrv2".CONN_STR, "oci8://user:pwd@tnsname/?charset=WE8MSWIN1252");
+
+define("oraDrv1".CONN_STR, "oci8://user:pwd@tnsname/?charset=WE8MSWIN1252");
+
+$sqliteDbPath = 'sqlite:///tmp/tephlon.db';
+define("sqliteDrv1".CONN_STR, $sqliteDbPath);

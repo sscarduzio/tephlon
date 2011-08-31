@@ -34,7 +34,7 @@ class Tephlon {
 	
 	public static $log;
 	
-	public static function getResource($namespace = null, $driverName="File"){
+	public static function getResource($namespace = null, $driverName="sqliteDrv1"){
 		$ctx = self::extractContext($namespace);
 		if($ctx === false){
 			self::$log->error("Can't create this resource");
@@ -46,7 +46,7 @@ class Tephlon {
 		}
 		if(defined($driverName.CONN_STR)){
 			$connectionString = constant($driverName.CONN_STR);
-			self::$log->debug("Found connection string: ".$connectionString);
+			self::$log->debug("Found connection string: " . $connectionString);
 			return new SQLResource($ctx, $connectionString);
 		}
 		$log->error("Driver $driverName not found");

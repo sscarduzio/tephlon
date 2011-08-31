@@ -5,6 +5,9 @@
  * @author Simone
  *
  */
+
+require_once ("DBConnector.php");
+
 class MySQLConnector extends DBConnector{
 
     public function __construct($ctx, $db){
